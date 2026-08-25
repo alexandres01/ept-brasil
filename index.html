@@ -1,0 +1,1203 @@
+<title>EPT em números</title>
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
+  --seq-100:#cde2fb; --seq-200:#9ec5f4; --seq-300:#6da7ec; --seq-400:#3987e5;
+  --seq-500:#256abf; --seq-600:#184f95; --seq-700:#0d366b;
+  --pos:#2a78d6; --neg:#d03b3b; --neutral:#f0efec;
+  --good:#006300; --crit:#d03b3b; --warn:#fab219;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --seq-100:#0d366b; --seq-200:#104281; --seq-300:#184f95; --seq-400:#256abf;
+  --seq-500:#2a78d6; --seq-600:#5598e7; --seq-700:#9ec5f4;
+  --pos:#3987e5; --neg:#e66767; --neutral:#383835;
+  --good:#0ca30c; --crit:#e66767;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --seq-100:#0d366b; --seq-200:#104281; --seq-300:#184f95; --seq-400:#256abf;
+  --seq-500:#2a78d6; --seq-600:#5598e7; --seq-700:#9ec5f4;
+  --pos:#3987e5; --neg:#e66767; --neutral:#383835;
+  --good:#0ca30c; --crit:#e66767;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--plane); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.deck{scroll-snap-type:y mandatory; height:100vh; overflow-y:auto; scroll-behavior:smooth}
+section.slide{
+  scroll-snap-align:start; height:100vh; overflow:hidden;
+  padding:clamp(24px,4vh,56px) clamp(20px,4vw,64px) 72px;
+  display:flex; flex-direction:column; gap:clamp(14px,2vh,24px);
+  border-bottom:1px solid var(--border);
+}
+@media(max-width:1000px){ section.slide{height:auto; min-height:100vh; overflow:visible} }
+.eyebrow{font-size:12px; font-weight:650; letter-spacing:.09em; text-transform:uppercase; color:var(--muted)}
+h1{font-size:clamp(34px,5.2vw,66px); line-height:1.06; margin:0; letter-spacing:-.025em; font-weight:680}
+h2{font-size:clamp(23px,2.9vw,37px); line-height:1.12; margin:0; letter-spacing:-.02em; font-weight:660}
+h3{font-size:15px; margin:0 0 2px; font-weight:640; letter-spacing:-.005em}
+p{margin:0; color:var(--ink-2); max-width:74ch}
+.lede{font-size:clamp(15px,1.35vw,18px); color:var(--ink-2); max-width:88ch}
+.small{font-size:13px; color:var(--muted); max-width:92ch}
+.hair{height:1px; background:var(--border); border:0; margin:0}
+
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:18px 20px 16px; display:flex; flex-direction:column; gap:12px; min-width:0; min-height:0;
+}
+.card > .chart{min-width:0}
+.grid{display:grid; gap:16px; min-width:0}
+.grid.grow{grid-auto-rows:minmax(0,1fr)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.g12{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+@media(max-width:1000px){.g2,.g3,.g4,.g21,.g12{grid-template-columns:minmax(0,1fr)}}
+.grow{flex:1; min-height:0}
+.col{flex:1; min-height:0; display:flex; flex-direction:column; gap:16px}
+
+.tile{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px}
+.tile .k{font-size:12px; font-weight:640; letter-spacing:.07em; text-transform:uppercase; color:var(--muted)}
+.tile .v{font-size:clamp(28px,3.4vw,44px); font-weight:680; letter-spacing:-.03em; line-height:1.08; margin:6px 0 2px}
+.tile .n{font-size:13px; color:var(--ink-2)}
+.delta{font-weight:640}
+.up{color:var(--good)} .down{color:var(--crit)}
+
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--ink-2)}
+.legend span{display:inline-flex; align-items:center; gap:6px; white-space:nowrap}
+.legend i{width:11px; height:11px; border-radius:3px; display:inline-block; flex:none; border:1px solid var(--border)}
+
+.chart{position:relative; width:100%}
+.chart.fit{flex:1 1 auto; min-height:0; overflow:hidden}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.tt{
+  position:fixed; pointer-events:none; z-index:60; opacity:0; transition:opacity .09s;
+  background:var(--surface); color:var(--ink); border:1px solid var(--border);
+  border-radius:9px; padding:9px 11px; font-size:12.5px; line-height:1.45;
+  box-shadow:0 8px 26px rgba(0,0,0,.14); max-width:290px;
+}
+.tt b{font-weight:640}
+.tt .r{display:flex; justify-content:space-between; gap:14px; font-variant-numeric:tabular-nums}
+
+.tools{display:flex; gap:8px; align-items:center; flex-wrap:wrap; flex:none}
+.chead{display:flex; justify-content:space-between; align-items:flex-start; gap:14px}
+.chead > div:first-child{flex:1 1 auto; min-width:0}
+.col.center{justify-content:center}
+button.btn, select.btn{
+  font:inherit; font-size:12.5px; padding:5px 11px; border-radius:8px; cursor:pointer;
+  background:var(--surface-2); color:var(--ink-2); border:1px solid var(--border);
+}
+button.btn:hover{color:var(--ink)}
+button.btn[aria-pressed="true"]{background:var(--s1); color:#fff; border-color:transparent}
+select.btn{font-size:14px; padding:7px 12px; font-weight:600; color:var(--ink)}
+
+.tblwrap{display:none; overflow:auto; max-height:340px; border:1px solid var(--border); border-radius:10px}
+.tblwrap.on{display:block}
+table{border-collapse:collapse; width:100%; font-size:12.5px; font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px; text-align:right; border-bottom:1px solid var(--grid); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{position:sticky; top:0; background:var(--surface-2); color:var(--ink-2); font-weight:640; z-index:1}
+
+.note{
+  border-left:3px solid var(--warn); background:var(--surface); border-radius:0 10px 10px 0;
+  padding:12px 16px; font-size:13.5px; color:var(--ink-2);
+}
+.note.crit{border-left-color:var(--crit)}
+.note b{color:var(--ink); font-weight:640}
+
+ol.steps{margin:0; padding-left:0; list-style:none; counter-reset:s; display:flex; flex-direction:column; gap:11px}
+ol.steps li{counter-increment:s; padding-left:38px; position:relative; font-size:14px; color:var(--ink-2)}
+ol.steps li::before{
+  content:counter(s); position:absolute; left:0; top:1px; width:25px; height:25px; border-radius:7px;
+  background:var(--surface-2); border:1px solid var(--border);
+  display:grid; place-items:center; font-size:12px; font-weight:680; color:var(--ink);
+}
+ol.steps li b{color:var(--ink); font-weight:640}
+
+nav.hud{
+  position:fixed; left:0; right:0; bottom:0; z-index:50; display:flex; align-items:center; gap:14px;
+  padding:9px clamp(16px,3vw,32px); background:color-mix(in srgb, var(--plane) 88%, transparent);
+  backdrop-filter:blur(10px); border-top:1px solid var(--border); font-size:12.5px; color:var(--muted);
+}
+nav.hud .bar{flex:1; height:3px; background:var(--grid); border-radius:2px; overflow:hidden}
+nav.hud .bar i{display:block; height:100%; background:var(--s1); width:0; transition:width .2s}
+nav.hud b{color:var(--ink); font-weight:640; font-variant-numeric:tabular-nums}
+nav.hud button{font:inherit; background:none; border:0; color:var(--muted); cursor:pointer; padding:2px 6px; border-radius:6px}
+nav.hud button:hover{color:var(--ink); background:var(--surface-2)}
+.src{font-size:11.5px; color:var(--muted)}
+.kbd{border:1px solid var(--border); border-radius:5px; padding:1px 6px; font-size:11px; background:var(--surface-2)}
+@media print{ .deck{height:auto; overflow:visible} section.slide{min-height:auto; page-break-after:always} nav.hud{display:none} }
+</style>
+
+<div class="deck" id="deck">
+
+<!-- 1 ───────────────────────────── CAPA -->
+<section class="slide" style="justify-content:center">
+  <div class="eyebrow">Censo Escolar da Educação Básica · INEP · microdados 2007–2025</div>
+  <h1>Educação Profissional<br>Técnica de Nível Médio<br><span style="color:var(--s1)">em números</span></h1>
+  <p class="lede" style="margin-top:6px">
+    Retrato de 2025 e série histórica de 19 anos: composição por forma de oferta, por área e por curso,
+    relação com o ensino médio e variação — no Brasil e em cada uma das 27 unidades da federação.
+  </p>
+  <div class="grid g4" style="margin-top:18px; max-width:1100px">
+    <div class="tile"><div class="k">Matrículas EPT 2025</div><div class="v" id="kpi-a"></div><div class="n">técnicas de nível médio</div></div>
+    <div class="tile"><div class="k">Variação 2007→2025</div><div class="v up" id="kpi-b"></div><div class="n">de 1,01 mi para 2,49 mi</div></div>
+    <div class="tile"><div class="k">Razão EPT / ensino médio</div><div class="v" id="kpi-c"></div><div class="n">era 12,0% em 2007</div></div>
+    <div class="tile"><div class="k">Do EM é técnico integrado</div><div class="v" id="kpi-d"></div><div class="n">1,20 mi de 7,37 mi em 2025</div></div>
+  </div>
+  <p class="src" style="margin-top:20px">
+    Fonte: INEP, Censo Escolar 2007–2025 (microdados) e Suplemento de Cursos Técnicos 2023–2025.
+    Filtro: escolas em atividade. Totais validados contra a Sinopse Estatística 2024.
+    Navegue com <span class="kbd">↓</span> <span class="kbd">↑</span> ou a barra de rolagem.
+  </p>
+</section>
+
+<!-- 2 ───────────────────────────── PANORAMA -->
+<section class="slide">
+  <div><div class="eyebrow">Panorama</div><h2>Onde a EPT está hoje</h2></div>
+  <p class="lede">Quatro leituras do mesmo estoque de 2,49 milhões de matrículas em 2025.</p>
+  <div class="col">
+    <div class="grid g2 grow">
+      <div class="card"><h3>Por forma de oferta</h3>
+        <div class="chart fit" id="c-panorama-forma"></div>
+        <div class="legend" id="l-panorama-forma"></div></div>
+      <div class="card"><h3>Por rede</h3>
+        <div class="chart fit" id="c-panorama-rede"></div>
+        <p class="small">A rede privada responde por 34% do estoque — e concentra-se no subsequente. Federal e municipal somam 14%.</p></div>
+    </div>
+    <div class="grid g2 grow">
+      <div class="card"><h3>Concentração por área</h3>
+        <div class="chart fit" id="c-panorama-area"></div>
+        <p class="small">As três maiores áreas somam 65,8% de todas as matrículas.</p></div>
+      <div class="card"><h3>Concentração geográfica</h3>
+        <div class="chart fit" id="c-panorama-uf"></div>
+        <p class="small">Cinco estados concentram 54,6% do estoque nacional.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ───────────────────────────── FORMA DE OFERTA BRASIL -->
+<section class="slide">
+  <div><div class="eyebrow">1 · Configuração atual</div><h2>A EPT brasileira por forma de oferta</h2></div>
+  <p class="lede">Em 2025 o integrado ultrapassa o subsequente pela primeira vez na série disponível. Os dois movimentos são simultâneos e de sinais opostos.</p>
+  <div class="col">
+  <div class="grid g21 grow">
+    <div class="card">
+      <div class="chead">
+        <div><h3>Brasil, 2023 → 2025</h3><p class="small">Matrículas por forma de oferta</p></div>
+        <div class="tools"><button class="btn" data-table="t-forma-br">Ver tabela</button></div>
+      </div>
+      <div class="chart fit" id="c-forma-br"></div>
+      <div class="legend" id="l-forma-br"></div>
+      <div class="tblwrap" id="t-forma-br"></div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px">
+      <div class="tile"><div class="k">Integrado 2024→2025</div><div class="v up">+21,8%</div><div class="n">985.923 → 1.200.606</div></div>
+      <div class="tile"><div class="k">Subsequente 2024→2025</div><div class="v down">−16,2%</div><div class="n">993.442 → 832.032</div></div>
+      <div class="note crit"><b>Não venda isso como migração de alunos.</b> O salto do integrado e a queda do subsequente ocorrem no mesmo ano da entrada em vigor do Itinerário Formativo Técnico e Profissional (IFTP). O INEP renomeou e reclassificou as categorias em 2025. O <b>total</b> permanece comparável; a <b>abertura por forma</b>, não.</div>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- 4 ───────────────────────────── EPT × ENSINO MÉDIO -->
+<section class="slide">
+  <div><div class="eyebrow">2 e 6 · EPT e ensino médio</div><h2>A EPT em relação ao ensino médio</h2></div>
+  <p class="lede">Duas perguntas diferentes, dois números diferentes. Confundi-las é o erro mais comum nesta pauta.</p>
+  <div class="col">
+  <div class="grid g2 grow">
+    <div class="card">
+      <div class="chead">
+        <div><h3>Razão EPT ÷ ensino médio · Brasil, 2007–2025</h3>
+        <p class="small">Numerador e denominador são populações distintas — o subsequente já concluiu o EM. É um indicador de porte relativo, não uma participação.</p></div>
+        <div class="tools"><button class="btn" data-table="t-razao">Ver tabela</button></div>
+      </div>
+      <div class="chart fit" id="c-razao"></div>
+      <div class="tblwrap" id="t-razao"></div>
+    </div>
+    <div class="card">
+      <h3>Composição do ensino médio · 2023–2025</h3>
+      <p class="small">Aqui numerador e denominador são a mesma população: alunos matriculados no ensino médio. Esta é a participação de verdade.</p>
+      <div class="chart fit" id="c-emcomp"></div>
+      <div class="legend" id="l-emcomp"></div>
+    </div>
+  </div>
+  <div class="grid g3">
+    <div class="tile"><div class="k">Razão EPT / EM · 2025</div><div class="v">33,8%</div><div class="n">2,49 mi ÷ 7,37 mi · era 12,0% em 2007</div></div>
+    <div class="tile"><div class="k">EM que é técnico integrado</div><div class="v">16,3%</div><div class="n">12,7% em 2024 · 10,2% em 2023</div></div>
+    <div class="tile"><div class="k">EM propedêutico puro</div><div class="v">76,3%</div><div class="n">86,9% em 2024 — queda de 10,6 p.p. em um ano</div></div>
+  </div>
+  <div class="note"><b>O denominador também se mexeu.</b> O ensino médio perdeu 419 mil matrículas entre 2024 e 2025 (7,79 mi → 7,37 mi). Parte da alta da razão vem do numerador crescendo; parte, do denominador encolhendo. E os 7,0% do EM classificados em 2025 como "qualificação profissional" (IFTP-QP, 517 mil) <b>não</b> são educação técnica — são FIC.</div>
+  </div>
+</section>
+
+<!-- 5 ───────────────────────────── ÁREAS BRASIL -->
+<section class="slide">
+  <div><div class="eyebrow">3 · Configuração atual</div><h2>A EPT brasileira por área</h2></div>
+  <p class="lede">Catorze áreas do Catálogo Nacional de Cursos Técnicos. Três delas concentram dois terços das matrículas.</p>
+  <div class="col">
+  <div class="grid g21 grow">
+    <div class="card">
+      <div class="chead">
+        <div><h3>Matrículas por área · Brasil, 2025</h3></div>
+        <div class="tools">
+          <button class="btn" id="btn-area-var" aria-pressed="false">Mostrar variação 2023→2025</button>
+          <button class="btn" data-table="t-area">Ver tabela</button>
+        </div>
+      </div>
+      <div class="chart fit" id="c-area-br"></div>
+      <div class="tblwrap" id="t-area"></div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px">
+      <div class="tile"><div class="k">Gestão e negócios</div><div class="v">28,6%</div><div class="n">711.071 matrículas — a maior área</div></div>
+      <div class="tile"><div class="k">Ambiente e saúde</div><div class="v">20,2%</div><div class="n">503.998 — mas <span class="delta down">−17,5%</span> desde 2023</div></div>
+      <div class="tile"><div class="k">Informação e comunicação</div><div class="v">17,1%</div><div class="n">424.628 — <span class="delta up">+40,7%</span> desde 2023</div></div>
+      <p class="small">A EPT brasileira não é majoritariamente industrial. Controle e processos industriais + produção industrial + infraestrutura somam 16,4%.</p>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- 6 ───────────────────────────── CURSOS BRASIL -->
+<section class="slide">
+  <div><div class="eyebrow">3 · Configuração atual</div><h2>Os cursos que a EPT realmente oferta</h2></div>
+  <p class="lede">206 cursos aparecem nos microdados. Os 20 maiores respondem por 73,7% das matrículas — e a movimentação entre 2023 e 2025 é intensa.</p>
+  <div class="col">
+  <div class="grid g21 grow">
+    <div class="card">
+      <div class="chead">
+        <div><h3>Os 20 maiores cursos · Brasil, 2025</h3><p class="small">Δ = variação sobre 2023. A área do Catálogo aparece no tooltip e na tabela.</p></div>
+        <div class="tools"><button class="btn" data-table="t-curso">Ver tabela</button></div>
+      </div>
+      <div class="chart fit" id="c-curso-br"></div>
+      <div class="tblwrap" id="t-curso"></div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px">
+      <div class="tile"><div class="k">Administração</div><div class="v">395.059</div><div class="n"><span class="delta up">+34,2%</span> desde 2023 · 1 em cada 6 matrículas</div></div>
+      <div class="tile"><div class="k">Enfermagem</div><div class="v">298.699</div><div class="n"><span class="delta down">−25,6%</span> desde 2023 · perdeu 103 mil</div></div>
+      <div class="tile"><div class="k">Desenvolvimento de Sistemas</div><div class="v">150.864</div><div class="n"><span class="delta up">+93,6%</span> — quase dobrou em dois anos</div></div>
+      <p class="small">Enfermagem e Transações Imobiliárias, ambos majoritariamente subsequentes, encolhem juntos. Administração e TI, presentes no integrado, crescem. O padrão é o mesmo da reclassificação de 2025.</p>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- 7 ───────────────────────────── ESTADOS POR FORMA -->
+<section class="slide">
+  <div><div class="eyebrow">4 · Configuração por estado</div><h2>Cada estado oferta a EPT de um jeito</h2></div>
+  <p class="lede">Composição por forma de oferta em 2025, em % do estoque de cada UF. Não existe um modelo brasileiro de EPT — existem 27.</p>
+  <div class="col">
+  <div class="card grow">
+    <div class="chead">
+      <div class="legend" id="l-uf-forma"></div>
+      <div class="tools">
+        <span class="small">Ordenar:</span>
+        <button class="btn" data-sort-forma="Integrado" aria-pressed="true">% integrado</button>
+        <button class="btn" data-sort-forma="Subsequente" aria-pressed="false">% subsequente</button>
+        <button class="btn" data-sort-forma="_tot" aria-pressed="false">tamanho</button>
+        <button class="btn" data-table="t-uf-forma">Ver tabela</button>
+      </div>
+    </div>
+    <div class="chart fit" id="c-uf-forma"></div>
+    <div class="tblwrap" id="t-uf-forma"></div>
+  </div>
+  <div class="grid g3">
+    <div class="tile"><div class="k">Paraíba</div><div class="v">78,3%</div><div class="n">integrado — a composição mais concentrada do país</div></div>
+    <div class="tile"><div class="k">Amazonas</div><div class="v">58,7%</div><div class="n">subsequente — o extremo oposto</div></div>
+    <div class="tile"><div class="k">Rio Grande do Sul</div><div class="v">40,2%</div><div class="n">concomitante — modelo próprio, puxado pela rede privada</div></div>
+  </div>
+  </div>
+</section>
+
+<!-- 8 ───────────────────────────── RAZÃO POR ESTADO -->
+<section class="slide">
+  <div><div class="eyebrow">2 e 6 · Por estado</div><h2>Quanta EPT cada estado tem, relativamente</h2></div>
+  <p class="lede">Duas medidas lado a lado. À esquerda, o porte da EPT frente ao ensino médio. À direita, a fatia do ensino médio que é técnico integrado — a única comparável entre populações iguais.</p>
+  <div class="col">
+  <div class="grid g2 grow">
+    <div class="card">
+      <div class="chead">
+        <div><h3>Razão EPT ÷ EM · 2025</h3><p class="small">Linha tracejada = Brasil (33,8%)</p></div>
+        <div class="tools"><button class="btn" data-table="t-razao-uf">Ver tabela</button></div>
+      </div>
+      <div class="chart fit" id="c-razao-uf"></div>
+      <div class="tblwrap" id="t-razao-uf"></div>
+    </div>
+    <div class="card">
+      <h3>% do ensino médio em curso técnico integrado · 2025</h3>
+      <p class="small">Linha tracejada = Brasil (16,3%)</p>
+      <div class="chart fit" id="c-integ-uf"></div>
+    </div>
+  </div>
+  <div class="note"><b>Piauí é o caso extremo — e é real.</b> 72.684 matrículas de EM integrado sobre 127.478 matrículas de ensino médio: 57% do ensino médio piauiense é técnico integrado, mais 17.191 no integrado à EJA. É a política estadual mais agressiva do país e o melhor argumento de que a escolha é do estado, não da economia.</div>
+  </div>
+</section>
+
+<!-- 9 ───────────────────────────── ÁREAS POR ESTADO -->
+<section class="slide">
+  <div><div class="eyebrow">5 · Configuração por estado</div><h2>Cada estado por área de curso</h2></div>
+  <p class="lede">Participação de cada área dentro do estoque de cada UF, 2025. Quanto mais escuro, maior o peso da área naquele estado.</p>
+  <div class="col">
+  <div class="card grow">
+    <div class="chead">
+      <div><h3>Matriz área × UF · % das matrículas de EPT de cada estado</h3>
+      <p class="small">Cada coluna soma 100%. Leia uma coluna de cima a baixo para ver o perfil de um estado.</p></div>
+      <div class="tools">
+        <span class="small" id="scale-legend"></span>
+        <button class="btn" data-table="t-uf-area">Ver tabela</button>
+      </div>
+    </div>
+    <div class="chart fit" id="c-heat"></div>
+    <div class="tblwrap" id="t-uf-area"></div>
+  </div>
+  <p class="small">Leitura: as duas primeiras linhas são escuras em quase todo o país. Gestão e negócios e Ambiente e saúde dominam de norte a sul — sinal de oferta guiada pelo custo de instalação do curso, não pela vocação produtiva do estado. As exceções são o que carrega informação: Recursos naturais no Centro-Oeste e no Norte, Segurança no Rio de Janeiro, Controle e processos industriais no Sul e no Sudeste.</p>
+  </div>
+</section>
+
+<!-- 10 ───────────────────────────── VARIAÇÃO BRASIL -->
+<section class="slide">
+  <div><div class="eyebrow">7 · Série histórica</div><h2>A variação no Brasil desde 2007</h2></div>
+  <p class="lede">19 anos completos, sem falhas. O total mais que dobrou — mas não em linha reta.</p>
+  <div class="col">
+  <div class="card grow">
+    <div class="chead">
+      <div><h3>Matrículas de EPT · Brasil, 2007–2025</h3></div>
+      <div class="tools">
+        <button class="btn" id="btn-serie-em" aria-pressed="false">Comparar com o ensino médio (índice 2007=100)</button>
+        <button class="btn" data-table="t-serie">Ver tabela</button>
+      </div>
+    </div>
+    <div class="chart fit" id="c-serie-br"></div>
+    <div class="legend" id="l-serie-br"></div>
+    <div class="tblwrap" id="t-serie"></div>
+  </div>
+  <div class="grid g4">
+    <div class="tile"><div class="k">2007→2014</div><div class="v up">+87%</div><div class="n">ciclo Pronatec / expansão da Rede Federal</div></div>
+    <div class="tile"><div class="k">2014→2021</div><div class="v down">−1,8%</div><div class="n">sete anos de estagnação</div></div>
+    <div class="tile"><div class="k">2021→2025</div><div class="v up">+34,5%</div><div class="n">retomada, concentrada no integrado</div></div>
+    <div class="tile"><div class="k">2007→2025</div><div class="v up">+147%</div><div class="n">1.007.237 → 2.490.145</div></div>
+  </div>
+  </div>
+</section>
+
+<!-- 11 ───────────────────────────── VARIAÇÃO POR ESTADO -->
+<section class="slide">
+  <div><div class="eyebrow">8 · Série histórica por estado</div><h2>A variação por estado desde 2007</h2></div>
+  <p class="lede">Todos os 27 estados cresceram no acumulado de 19 anos. A escolha da janela muda inteiramente quem é caso de sucesso.</p>
+  <div class="col">
+  <div class="grid g2 grow">
+    <div class="card">
+      <div class="chead">
+        <div><h3>Variação 2007 → 2025</h3><p class="small">Linha tracejada = Brasil (+147%)</p></div>
+        <div class="tools"><button class="btn" data-table="t-var">Ver tabela</button></div>
+      </div>
+      <div class="chart fit" id="c-var-longo"></div>
+      <div class="tblwrap" id="t-var"></div>
+    </div>
+    <div class="card">
+      <h3>Variação 2019 → 2025 · os últimos seis anos</h3>
+      <p class="small">Mesma métrica, janela recente. Seis estados perdem matrículas.</p>
+      <div class="chart fit" id="c-var-curto"></div>
+    </div>
+  </div>
+  <div class="note crit"><b>Cuidado com a base pequena.</b> O Acre lidera o ranking de 19 anos com +1.315% — partindo de 1.146 matrículas em 2007. Em 2025 tem 16.221, menos que Sergipe. Em estados de base pequena (AC, AP, RR), variações de ±40% ao ano são ruído de escala, não política pública. Rankings de variação percentual sempre premiam quem começou do zero.</div>
+  </div>
+</section>
+
+<!-- 12 ───────────────────────────── EXPLORADOR -->
+<section class="slide">
+  <div style="display:flex; justify-content:space-between; align-items:end; gap:16px; flex-wrap:wrap">
+    <div><div class="eyebrow">4 e 5 · Ficha por estado</div><h2>Retrato de cada unidade da federação</h2></div>
+    <select class="btn" id="uf-pick" aria-label="Escolher estado"></select>
+  </div>
+  <div class="col">
+    <div class="grid g4">
+      <div class="tile"><div class="k">Matrículas EPT 2025</div><div class="v" id="uf-k1"></div><div class="n" id="uf-k1n"></div></div>
+      <div class="tile"><div class="k">Variação 2007→2025</div><div class="v" id="uf-k2"></div><div class="n" id="uf-k2n"></div></div>
+      <div class="tile"><div class="k">Razão EPT / EM</div><div class="v" id="uf-k3"></div><div class="n" id="uf-k3n"></div></div>
+      <div class="tile"><div class="k">Rede estadual</div><div class="v" id="uf-k4"></div><div class="n" id="uf-k4n"></div></div>
+    </div>
+    <div class="grid g3 grow">
+      <div class="card"><h3>Série 2007–2025</h3><div class="chart fit" id="c-uf-serie"></div></div>
+      <div class="card"><h3>Forma de oferta · 2025</h3><div class="chart fit" id="c-uf-forma-one"></div></div>
+      <div class="card"><h3>10 maiores cursos · 2025</h3><div class="chart fit" id="c-uf-curso"></div></div>
+    </div>
+    <div class="grid g2 grow">
+      <div class="card"><h3>Áreas · 2025</h3><div class="chart fit" id="c-uf-area-one"></div></div>
+      <div class="card"><h3>Rede · 2025</h3><div class="chart fit" id="c-uf-rede"></div>
+        <p class="small" id="uf-nota"></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 ───────────────────────────── ARMADILHAS -->
+<section class="slide">
+  <div><div class="eyebrow">Antes de usar</div><h2>Sete armadilhas destes dados</h2></div>
+  <p class="lede">Cada uma já derrubou uma manchete. Todas são verificáveis nos próprios microdados.</p>
+  <div class="col center">
+  <div class="grid g2">
+    <ol class="steps">
+      <li><b>2025 é quebra de série na abertura por forma.</b> O IFTP renomeou e reclassificou as categorias. Total comparável; composição, não. O salto de +21,8% do integrado tem cara de reclassificação.</li>
+      <li><b>O corte por curso só existe desde 2023.</b> São três anos, não dezenove. Os microdados harmonizados de 2007–2022 não trazem <code>NO_CURSO_EDUC_PROFISSIONAL</code>. Não afirme tendência de curso com três pontos.</li>
+      <li><b><code>QT_MAT_PROF</code> ≠ <code>QT_MAT_PROF_TEC</code>.</b> A primeira inclui cursos FIC e infla o número em 7,8% (186.839 matrículas em 2024). Toda esta apresentação usa a segunda.</li>
+      <li><b>Normal/Magistério entra no total do INEP.</b> São 32.529 matrículas em 2025 que o leitor comum não chamaria de curso técnico. Decida se entram — e diga qual escolheu.</li>
+    </ol>
+    <ol class="steps" start="5" style="counter-reset:s 4">
+      <li><b>Razão EPT/EM não é participação.</b> Subsequente e concomitante não são matrículas de ensino médio. A única fração honesta entre populações iguais é integrado ÷ EM.</li>
+      <li><b>O denominador encolheu.</b> O EM perdeu 419 mil matrículas de 2024 para 2025. Toda razão com EM no denominador sobe por esse motivo, sem que a EPT tenha crescido nada.</li>
+      <li><b>Variação percentual premia base pequena.</b> AC, AP e RR lideram rankings de crescimento por partirem de números de três dígitos. Sempre publique o valor absoluto ao lado da variação.</li>
+    </ol>
+  </div>
+  <hr class="hair">
+  <p class="small">
+    <b>Ficha técnica.</b> Fonte: INEP, Censo Escolar da Educação Básica, microdados 2007–2025, e Suplemento de Cursos Técnicos 2023–2025.
+    Variável: <code>QT_MAT_PROF_TEC</code>; ensino médio: <code>QT_MAT_MED</code>. Filtro <code>TP_SITUACAO_FUNCIONAMENTO = 1</code> (escolas em atividade); campos vazios tratados como zero.
+    Em 2025 a UF vem de <code>Tabela_Escola</code>, unida a <code>Tabela_Matricula</code> por <code>CO_ENTIDADE</code> (0 órfãos).
+    Validação: os cinco componentes de 2024 somam 2.389.454 — exatamente o total dos microdados e da Sinopse Estatística 1.30.
+  </p>
+  </div>
+</section>
+
+<!-- 14 ───────────────────────────── LEITURA CRÍTICA -->
+<section class="slide">
+  <div><div class="eyebrow">Leitura crítica</div><h2>O que estes dados sustentam — e o que não sustentam</h2></div>
+  <p class="lede">Se a apresentação vai a um secretário estadual, três afirmações se sustentam e três não.</p>
+  <div class="col center">
+  <div class="grid g2 grow">
+    <div class="card">
+      <h3 style="color:var(--good)">Sustenta-se nos dados</h3>
+      <ol class="steps">
+        <li><b>A EPT virou política de estado, não de governo federal.</b> A rede estadual tem 1,29 mi de matrículas contra 331 mil da federal. O que decide o tamanho da EPT de um estado é o próprio estado.</li>
+        <li><b>A dispersão entre estados é a evidência mais forte.</b> Piauí tem 57,0% do seu ensino médio em curso técnico integrado; Tocantins, 9,8%; Amazonas, 3,4%. A distância entre o topo e o piso é de dezessete vezes — e não é explicada por renda.</li>
+        <li><b>A oferta não segue a economia local.</b> Gestão e negócios e Ambiente e saúde lideram em quase todas as UFs. Isso indica oferta guiada por custo de instalação, e não por vocação produtiva — uma lacuna real de planejamento.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--crit)">Não se sustenta</h3>
+      <ol class="steps">
+        <li><b>"O ensino médio integrado explodiu em 2025."</b> É reclassificação administrativa até prova em contrário. Publicar isso como conquista de política pública é o risco reputacional número um deste conjunto.</li>
+        <li><b>"A EPT já é um terço do ensino médio."</b> Mistura populações. O número honesto e defensável é 16,3%.</li>
+        <li><b>"O estado X é caso de sucesso porque cresceu Y%."</b> Rankings de variação percentual premiam base pequena. Sem o valor absoluto ao lado, a afirmação não sobrevive à primeira checagem.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="note"><b>O ângulo mais forte que os dados permitem</b> não é o crescimento nacional — é a <b>dispersão entre estados</b>. Crescimento nacional é mérito difuso e não gera demanda. Dispersão é comparável, é atribuível a uma decisão estadual, e coloca o interlocutor numa posição do ranking que ele quer mudar.</div>
+  </div>
+</section>
+
+</div>
+
+<nav class="hud">
+  <button id="prev" aria-label="Slide anterior">←</button>
+  <button id="next" aria-label="Próximo slide">→</button>
+  <span><b id="cur">1</b> / <b id="tot">14</b></span>
+  <span class="bar"><i id="prog"></i></span>
+  <span id="hudtitle" style="max-width:36ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap"></span>
+  <button id="theme" aria-label="Alternar tema">◐</button>
+</nav>
+
+<div class="tt" id="tt"></div>
+
+<script id="ept-data" type="application/json">{"uf_nome":{"AC":"Acre","AL":"Alagoas","AP":"Amapá","AM":"Amazonas","BA":"Bahia","CE":"Ceará","DF":"Distrito Federal","ES":"Espírito Santo","GO":"Goiás","MA":"Maranhão","MT":"Mato Grosso","MS":"Mato Grosso do Sul","MG":"Minas Gerais","PA":"Pará","PB":"Paraíba","PR":"Paraná","PE":"Pernambuco","PI":"Piauí","RJ":"Rio de Janeiro","RN":"Rio Grande do Norte","RS":"Rio Grande do Sul","RO":"Rondônia","RR":"Roraima","SC":"Santa Catarina","SP":"São Paulo","SE":"Sergipe","TO":"Tocantins"},"uf_reg":{"AC":"N","AP":"N","AM":"N","PA":"N","RO":"N","RR":"N","TO":"N","AL":"NE","BA":"NE","CE":"NE","MA":"NE","PB":"NE","PE":"NE","PI":"NE","RN":"NE","SE":"NE","DF":"CO","GO":"CO","MT":"CO","MS":"CO","ES":"SE","MG":"SE","RJ":"SE","SP":"SE","PR":"S","RS":"S","SC":"S"},"regioes":{"N":["AC","AP","AM","PA","RO","RR","TO"],"NE":["AL","BA","CE","MA","PB","PE","PI","RN","SE"],"CO":["DF","GO","MT","MS"],"SE":["ES","MG","RJ","SP"],"S":["PR","RS","SC"]},"anos":[2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"br_serie":[{"ano":2007,"ept":1007237,"em":8372175,"razao":12.03},{"ano":2008,"ept":1144755,"em":8368868,"razao":13.68},{"ano":2009,"ept":1252240,"em":8338423,"razao":15.02},{"ano":2010,"ept":1361827,"em":8358647,"razao":16.29},{"ano":2011,"ept":1458496,"em":8401829,"razao":17.36},{"ano":2012,"ept":1532562,"em":8377942,"razao":18.29},{"ano":2013,"ept":1602946,"em":8314048,"razao":19.28},{"ano":2014,"ept":1886167,"em":8301380,"razao":22.72},{"ano":2015,"ept":1825457,"em":8076150,"razao":22.6},{"ano":2016,"ept":1775324,"em":8133040,"razao":21.83},{"ano":2017,"ept":1791806,"em":7930384,"razao":22.59},{"ano":2018,"ept":1868917,"em":7709929,"razao":24.24},{"ano":2019,"ept":1874974,"em":7465891,"razao":25.11},{"ano":2020,"ept":1901477,"em":7550753,"razao":25.18},{"ano":2021,"ept":1851541,"em":7770557,"razao":23.83},{"ano":2022,"ept":2069771,"em":7866695,"razao":26.31},{"ano":2023,"ept":2271607,"em":7676743,"razao":29.59},{"ano":2024,"ept":2389454,"em":7790396,"razao":30.67},{"ano":2025,"ept":2490145,"em":7370879,"razao":33.78}],"uf_serie":{"AC":[{"ano":2007,"ept":1146,"em":30625,"razao":3.74},{"ano":2008,"ept":1886,"em":33113,"razao":5.7},{"ano":2009,"ept":1877,"em":34765,"razao":5.4},{"ano":2010,"ept":1776,"em":36295,"razao":4.89},{"ano":2011,"ept":1551,"em":38502,"razao":4.03},{"ano":2012,"ept":3676,"em":39273,"razao":9.36},{"ano":2013,"ept":3192,"em":41693,"razao":7.66},{"ano":2014,"ept":7696,"em":42245,"razao":18.22},{"ano":2015,"ept":6675,"em":43510,"razao":15.34},{"ano":2016,"ept":5352,"em":42573,"razao":12.57},{"ano":2017,"ept":3924,"em":40226,"razao":9.75},{"ano":2018,"ept":7830,"em":38141,"razao":20.53},{"ano":2019,"ept":6239,"em":38116,"razao":16.37},{"ano":2020,"ept":5368,"em":39287,"razao":13.66},{"ano":2021,"ept":4852,"em":40670,"razao":11.93},{"ano":2022,"ept":5371,"em":41636,"razao":12.9},{"ano":2023,"ept":13798,"em":40216,"razao":34.31},{"ano":2024,"ept":8492,"em":40079,"razao":21.19},{"ano":2025,"ept":16221,"em":37266,"razao":43.53}],"AL":[{"ano":2007,"ept":12825,"em":130453,"razao":9.83},{"ano":2008,"ept":13986,"em":128937,"razao":10.85},{"ano":2009,"ept":15087,"em":133638,"razao":11.29},{"ano":2010,"ept":14102,"em":130247,"razao":10.83},{"ano":2011,"ept":16489,"em":134045,"razao":12.3},{"ano":2012,"ept":20270,"em":131801,"razao":15.38},{"ano":2013,"ept":15869,"em":129996,"razao":12.21},{"ano":2014,"ept":26961,"em":127981,"razao":21.07},{"ano":2015,"ept":24609,"em":123281,"razao":19.96},{"ano":2016,"ept":22525,"em":122495,"razao":18.39},{"ano":2017,"ept":23024,"em":118933,"razao":19.36},{"ano":2018,"ept":24327,"em":118393,"razao":20.55},{"ano":2019,"ept":34124,"em":116193,"razao":29.37},{"ano":2020,"ept":26852,"em":117488,"razao":22.86},{"ano":2021,"ept":27690,"em":124588,"razao":22.23},{"ano":2022,"ept":27591,"em":127502,"razao":21.64},{"ano":2023,"ept":22933,"em":120878,"razao":18.97},{"ano":2024,"ept":24637,"em":127231,"razao":19.36},{"ano":2025,"ept":26096,"em":122787,"razao":21.25}],"AP":[{"ano":2007,"ept":2065,"em":35771,"razao":5.77},{"ano":2008,"ept":2464,"em":35733,"razao":6.9},{"ano":2009,"ept":3262,"em":37013,"razao":8.81},{"ano":2010,"ept":3701,"em":37871,"razao":9.77},{"ano":2011,"ept":4372,"em":37983,"razao":11.51},{"ano":2012,"ept":5695,"em":39122,"razao":14.56},{"ano":2013,"ept":5577,"em":37536,"razao":14.86},{"ano":2014,"ept":6932,"em":38626,"razao":17.95},{"ano":2015,"ept":7825,"em":39616,"razao":19.75},{"ano":2016,"ept":7624,"em":39163,"razao":19.47},{"ano":2017,"ept":5914,"em":37428,"razao":15.8},{"ano":2018,"ept":9141,"em":35427,"razao":25.8},{"ano":2019,"ept":5408,"em":32987,"razao":16.39},{"ano":2020,"ept":4631,"em":31639,"razao":14.64},{"ano":2021,"ept":4820,"em":34129,"razao":14.12},{"ano":2022,"ept":4860,"em":32873,"razao":14.78},{"ano":2023,"ept":5855,"em":32435,"razao":18.05},{"ano":2024,"ept":5605,"em":33346,"razao":16.81},{"ano":2025,"ept":6974,"em":33626,"razao":20.74}],"AM":[{"ano":2007,"ept":13259,"em":149479,"razao":8.87},{"ano":2008,"ept":17590,"em":159656,"razao":11.02},{"ano":2009,"ept":20605,"em":160642,"razao":12.83},{"ano":2010,"ept":17887,"em":162113,"razao":11.03},{"ano":2011,"ept":21889,"em":169842,"razao":12.89},{"ano":2012,"ept":26245,"em":181519,"razao":14.46},{"ano":2013,"ept":25273,"em":185228,"razao":13.64},{"ano":2014,"ept":32051,"em":189948,"razao":16.87},{"ano":2015,"ept":32404,"em":189743,"razao":17.08},{"ano":2016,"ept":30261,"em":196480,"razao":15.4},{"ano":2017,"ept":29363,"em":199808,"razao":14.7},{"ano":2018,"ept":28316,"em":205698,"razao":13.77},{"ano":2019,"ept":33492,"em":205128,"razao":16.33},{"ano":2020,"ept":28332,"em":207688,"razao":13.64},{"ano":2021,"ept":26215,"em":211302,"razao":12.41},{"ano":2022,"ept":27095,"em":199896,"razao":13.55},{"ano":2023,"ept":38857,"em":189771,"razao":20.48},{"ano":2024,"ept":44127,"em":192683,"razao":22.9},{"ano":2025,"ept":29734,"em":191839,"razao":15.5}],"BA":[{"ano":2007,"ept":38444,"em":655358,"razao":5.87},{"ano":2008,"ept":43485,"em":650127,"razao":6.69},{"ano":2009,"ept":52972,"em":639970,"razao":8.28},{"ano":2010,"ept":64386,"em":589012,"razao":10.93},{"ano":2011,"ept":78437,"em":598510,"razao":13.11},{"ano":2012,"ept":90672,"em":589072,"razao":15.39},{"ano":2013,"ept":92170,"em":575378,"razao":16.02},{"ano":2014,"ept":112340,"em":562012,"razao":19.99},{"ano":2015,"ept":114131,"em":553472,"razao":20.62},{"ano":2016,"ept":114618,"em":570450,"razao":20.09},{"ano":2017,"ept":122477,"em":570301,"razao":21.48},{"ano":2018,"ept":137193,"em":566952,"razao":24.2},{"ano":2019,"ept":145021,"em":544868,"razao":26.62},{"ano":2020,"ept":159948,"em":557441,"razao":28.69},{"ano":2021,"ept":158064,"em":635569,"razao":24.87},{"ano":2022,"ept":147502,"em":569637,"razao":25.89},{"ano":2023,"ept":161970,"em":517073,"razao":31.32},{"ano":2024,"ept":178160,"em":510586,"razao":34.89},{"ano":2025,"ept":187131,"em":479086,"razao":39.06}],"CE":[{"ano":2007,"ept":17978,"em":404415,"razao":4.45},{"ano":2008,"ept":24223,"em":409060,"razao":5.92},{"ano":2009,"ept":36018,"em":416922,"razao":8.64},{"ano":2010,"ept":43398,"em":411176,"razao":10.55},{"ano":2011,"ept":49569,"em":412586,"razao":12.01},{"ano":2012,"ept":56200,"em":406728,"razao":13.82},{"ano":2013,"ept":63081,"em":400014,"razao":15.77},{"ano":2014,"ept":73727,"em":388457,"razao":18.98},{"ano":2015,"ept":86157,"em":373407,"razao":23.07},{"ano":2016,"ept":82363,"em":379866,"razao":21.68},{"ano":2017,"ept":80901,"em":369610,"razao":21.89},{"ano":2018,"ept":87336,"em":367781,"razao":23.75},{"ano":2019,"ept":90494,"em":360265,"razao":25.12},{"ano":2020,"ept":89236,"em":362470,"razao":24.62},{"ano":2021,"ept":92796,"em":367574,"razao":25.25},{"ano":2022,"ept":100292,"em":359427,"razao":27.9},{"ano":2023,"ept":107892,"em":358735,"razao":30.08},{"ano":2024,"ept":114749,"em":364898,"razao":31.45},{"ano":2025,"ept":121510,"em":356773,"razao":34.06}],"DF":[{"ano":2007,"ept":7038,"em":98499,"razao":7.15},{"ano":2008,"ept":12101,"em":91277,"razao":13.26},{"ano":2009,"ept":13189,"em":104956,"razao":12.57},{"ano":2010,"ept":13341,"em":107852,"razao":12.37},{"ano":2011,"ept":13241,"em":109587,"razao":12.08},{"ano":2012,"ept":15297,"em":111774,"razao":13.69},{"ano":2013,"ept":15218,"em":109171,"razao":13.94},{"ano":2014,"ept":24548,"em":110591,"razao":22.2},{"ano":2015,"ept":25187,"em":110416,"razao":22.81},{"ano":2016,"ept":22327,"em":110189,"razao":20.26},{"ano":2017,"ept":22505,"em":109143,"razao":20.62},{"ano":2018,"ept":23064,"em":109938,"razao":20.98},{"ano":2019,"ept":24361,"em":110020,"razao":22.14},{"ano":2020,"ept":26180,"em":111860,"razao":23.4},{"ano":2021,"ept":27818,"em":116843,"razao":23.81},{"ano":2022,"ept":29604,"em":114414,"razao":25.87},{"ano":2023,"ept":29016,"em":111437,"razao":26.04},{"ano":2024,"ept":30251,"em":104486,"razao":28.95},{"ano":2025,"ept":34579,"em":105044,"razao":32.92}],"ES":[{"ano":2007,"ept":23312,"em":140823,"razao":16.55},{"ano":2008,"ept":23929,"em":140214,"razao":17.07},{"ano":2009,"ept":26231,"em":138944,"razao":18.88},{"ano":2010,"ept":31591,"em":131816,"razao":23.97},{"ano":2011,"ept":42691,"em":135803,"razao":31.44},{"ano":2012,"ept":45897,"em":137357,"razao":33.41},{"ano":2013,"ept":48350,"em":136558,"razao":35.41},{"ano":2014,"ept":49438,"em":134950,"razao":36.63},{"ano":2015,"ept":46288,"em":131715,"razao":35.14},{"ano":2016,"ept":41533,"em":129409,"razao":32.09},{"ano":2017,"ept":37644,"em":123937,"razao":30.37},{"ano":2018,"ept":36801,"em":116959,"razao":31.46},{"ano":2019,"ept":35513,"em":114217,"razao":31.09},{"ano":2020,"ept":41654,"em":120046,"razao":34.7},{"ano":2021,"ept":44364,"em":129115,"razao":34.36},{"ano":2022,"ept":54168,"em":127054,"razao":42.63},{"ano":2023,"ept":57607,"em":126068,"razao":45.7},{"ano":2024,"ept":60659,"em":127820,"razao":47.46},{"ano":2025,"ept":61588,"em":127580,"razao":48.27}],"GO":[{"ano":2007,"ept":14536,"em":272568,"razao":5.33},{"ano":2008,"ept":14731,"em":264279,"razao":5.57},{"ano":2009,"ept":18065,"em":267858,"razao":6.74},{"ano":2010,"ept":19666,"em":270624,"razao":7.27},{"ano":2011,"ept":21315,"em":264689,"razao":8.05},{"ano":2012,"ept":24654,"em":262168,"razao":9.4},{"ano":2013,"ept":27091,"em":260562,"razao":10.4},{"ano":2014,"ept":31555,"em":259497,"razao":12.16},{"ano":2015,"ept":39149,"em":256201,"razao":15.28},{"ano":2016,"ept":32275,"em":247506,"razao":13.04},{"ano":2017,"ept":26239,"em":225538,"razao":11.63},{"ano":2018,"ept":31612,"em":233412,"razao":13.54},{"ano":2019,"ept":30282,"em":237166,"razao":12.77},{"ano":2020,"ept":30788,"em":254320,"razao":12.11},{"ano":2021,"ept":30112,"em":258549,"razao":11.65},{"ano":2022,"ept":32720,"em":249164,"razao":13.13},{"ano":2023,"ept":36838,"em":224130,"razao":16.44},{"ano":2024,"ept":37665,"em":240835,"razao":15.64},{"ano":2025,"ept":53935,"em":238959,"razao":22.57}],"MA":[{"ano":2007,"ept":21866,"em":316471,"razao":6.91},{"ano":2008,"ept":26373,"em":327256,"razao":8.06},{"ano":2009,"ept":26610,"em":319679,"razao":8.32},{"ano":2010,"ept":24554,"em":318324,"razao":7.71},{"ano":2011,"ept":23394,"em":312192,"razao":7.49},{"ano":2012,"ept":25894,"em":308440,"razao":8.4},{"ano":2013,"ept":27517,"em":308815,"razao":8.91},{"ano":2014,"ept":30769,"em":311618,"razao":9.87},{"ano":2015,"ept":35001,"em":312111,"razao":11.21},{"ano":2016,"ept":31709,"em":319656,"razao":9.92},{"ano":2017,"ept":35751,"em":318515,"razao":11.22},{"ano":2018,"ept":38773,"em":311830,"razao":12.43},{"ano":2019,"ept":43618,"em":290250,"razao":15.03},{"ano":2020,"ept":41249,"em":283607,"razao":14.54},{"ano":2021,"ept":42351,"em":279213,"razao":15.17},{"ano":2022,"ept":54506,"em":277358,"razao":19.65},{"ano":2023,"ept":62071,"em":283486,"razao":21.9},{"ano":2024,"ept":74553,"em":291650,"razao":25.56},{"ano":2025,"ept":84983,"em":286403,"razao":29.67}],"MT":[{"ano":2007,"ept":3970,"em":146783,"razao":2.7},{"ano":2008,"ept":5827,"em":148084,"razao":3.93},{"ano":2009,"ept":10445,"em":145276,"razao":7.19},{"ano":2010,"ept":13679,"em":146054,"razao":9.37},{"ano":2011,"ept":16612,"em":153516,"razao":10.82},{"ano":2012,"ept":18994,"em":159664,"razao":11.9},{"ano":2013,"ept":21256,"em":160550,"razao":13.24},{"ano":2014,"ept":24633,"em":159680,"razao":15.43},{"ano":2015,"ept":25227,"em":157936,"razao":15.97},{"ano":2016,"ept":24662,"em":149456,"razao":16.5},{"ano":2017,"ept":23572,"em":142495,"razao":16.54},{"ano":2018,"ept":21239,"em":140019,"razao":15.17},{"ano":2019,"ept":19667,"em":142836,"razao":13.77},{"ano":2020,"ept":16837,"em":140030,"razao":12.02},{"ano":2021,"ept":14739,"em":157928,"razao":9.33},{"ano":2022,"ept":16527,"em":154545,"razao":10.69},{"ano":2023,"ept":21688,"em":137021,"razao":15.83},{"ano":2024,"ept":21059,"em":141262,"razao":14.91},{"ano":2025,"ept":31951,"em":138810,"razao":23.02}],"MS":[{"ano":2007,"ept":6439,"em":94650,"razao":6.8},{"ano":2008,"ept":7743,"em":91135,"razao":8.5},{"ano":2009,"ept":10245,"em":91662,"razao":11.18},{"ano":2010,"ept":9543,"em":99029,"razao":9.64},{"ano":2011,"ept":13094,"em":100250,"razao":13.06},{"ano":2012,"ept":16484,"em":100488,"razao":16.4},{"ano":2013,"ept":21847,"em":99411,"razao":21.98},{"ano":2014,"ept":25124,"em":99328,"razao":25.29},{"ano":2015,"ept":26380,"em":93257,"razao":28.29},{"ano":2016,"ept":22663,"em":95205,"razao":23.8},{"ano":2017,"ept":17598,"em":96512,"razao":18.23},{"ano":2018,"ept":18413,"em":102123,"razao":18.03},{"ano":2019,"ept":18811,"em":103482,"razao":18.18},{"ano":2020,"ept":19531,"em":104878,"razao":18.62},{"ano":2021,"ept":21094,"em":109762,"razao":19.22},{"ano":2022,"ept":18463,"em":104448,"razao":17.68},{"ano":2023,"ept":21864,"em":103814,"razao":21.06},{"ano":2024,"ept":21488,"em":104679,"razao":20.53},{"ano":2025,"ept":22113,"em":101886,"razao":21.7}],"MG":[{"ano":2007,"ept":92383,"em":846281,"razao":10.92},{"ano":2008,"ept":122246,"em":834368,"razao":14.65},{"ano":2009,"ept":130606,"em":824798,"razao":15.83},{"ano":2010,"ept":172917,"em":836390,"razao":20.67},{"ano":2011,"ept":194056,"em":861022,"razao":22.54},{"ano":2012,"ept":168655,"em":848983,"razao":19.87},{"ano":2013,"ept":180235,"em":821588,"razao":21.94},{"ano":2014,"ept":195888,"em":796167,"razao":24.6},{"ano":2015,"ept":160505,"em":787359,"razao":20.39},{"ano":2016,"ept":164346,"em":835089,"razao":19.68},{"ano":2017,"ept":161416,"em":842697,"razao":19.15},{"ano":2018,"ept":163614,"em":821349,"razao":19.92},{"ano":2019,"ept":123412,"em":751103,"razao":16.43},{"ano":2020,"ept":132333,"em":746518,"razao":17.73},{"ano":2021,"ept":114486,"em":692668,"razao":16.53},{"ano":2022,"ept":195316,"em":707944,"razao":27.59},{"ano":2023,"ept":255950,"em":716517,"razao":35.72},{"ano":2024,"ept":259154,"em":737456,"razao":35.14},{"ano":2025,"ept":268243,"em":725315,"razao":36.98}],"PA":[{"ano":2007,"ept":8323,"em":368320,"razao":2.26},{"ano":2008,"ept":10668,"em":337819,"razao":3.16},{"ano":2009,"ept":14856,"em":346796,"razao":4.28},{"ano":2010,"ept":18116,"em":356885,"razao":5.08},{"ano":2011,"ept":20785,"em":352602,"razao":5.89},{"ano":2012,"ept":27246,"em":356554,"razao":7.64},{"ano":2013,"ept":30819,"em":355976,"razao":8.66},{"ano":2014,"ept":34957,"em":359736,"razao":9.72},{"ano":2015,"ept":36565,"em":359979,"razao":10.16},{"ano":2016,"ept":34918,"em":364418,"razao":9.58},{"ano":2017,"ept":38456,"em":359127,"razao":10.71},{"ano":2018,"ept":42858,"em":359331,"razao":11.93},{"ano":2019,"ept":45320,"em":356274,"razao":12.72},{"ano":2020,"ept":42840,"em":354447,"razao":12.09},{"ano":2021,"ept":47531,"em":391603,"razao":12.14},{"ano":2022,"ept":55032,"em":368383,"razao":14.94},{"ano":2023,"ept":63017,"em":324258,"razao":19.43},{"ano":2024,"ept":61220,"em":350746,"razao":17.45},{"ano":2025,"ept":59733,"em":338613,"razao":17.64}],"PB":[{"ano":2007,"ept":19435,"em":155331,"razao":12.51},{"ano":2008,"ept":20308,"em":154247,"razao":13.17},{"ano":2009,"ept":18052,"em":149469,"razao":12.08},{"ano":2010,"ept":17613,"em":146876,"razao":11.99},{"ano":2011,"ept":16862,"em":143125,"razao":11.78},{"ano":2012,"ept":18917,"em":142326,"razao":13.29},{"ano":2013,"ept":20130,"em":139415,"razao":14.44},{"ano":2014,"ept":26488,"em":138252,"razao":19.16},{"ano":2015,"ept":23893,"em":133183,"razao":17.94},{"ano":2016,"ept":22363,"em":140772,"razao":15.89},{"ano":2017,"ept":25997,"em":143636,"razao":18.1},{"ano":2018,"ept":27684,"em":141297,"razao":19.59},{"ano":2019,"ept":32554,"em":135458,"razao":24.03},{"ano":2020,"ept":37671,"em":138340,"razao":27.23},{"ano":2021,"ept":48042,"em":147866,"razao":32.49},{"ano":2022,"ept":52840,"em":144453,"razao":36.58},{"ano":2023,"ept":49435,"em":140067,"razao":35.29},{"ano":2024,"ept":52667,"em":145571,"razao":36.18},{"ano":2025,"ept":54643,"em":145192,"razao":37.63}],"PR":[{"ano":2007,"ept":83764,"em":469272,"razao":17.85},{"ano":2008,"ept":92196,"em":472244,"razao":19.52},{"ano":2009,"ept":103047,"em":474278,"razao":21.73},{"ano":2010,"ept":113086,"em":479522,"razao":23.58},{"ano":2011,"ept":112208,"em":481962,"razao":23.28},{"ano":2012,"ept":110802,"em":484633,"razao":22.86},{"ano":2013,"ept":107637,"em":479519,"razao":22.45},{"ano":2014,"ept":118228,"em":476207,"razao":24.83},{"ano":2015,"ept":115857,"em":474267,"razao":24.43},{"ano":2016,"ept":125089,"em":457620,"razao":27.33},{"ano":2017,"ept":121455,"em":439815,"razao":27.62},{"ano":2018,"ept":125032,"em":424898,"razao":29.43},{"ano":2019,"ept":129801,"em":407743,"razao":31.83},{"ano":2020,"ept":125315,"em":425477,"razao":29.45},{"ano":2021,"ept":99460,"em":378660,"razao":26.27},{"ano":2022,"ept":119419,"em":428566,"razao":27.86},{"ano":2023,"ept":137327,"em":403394,"razao":34.04},{"ano":2024,"ept":160025,"em":417836,"razao":38.3},{"ano":2025,"ept":174385,"em":389656,"razao":44.75}],"PE":[{"ano":2007,"ept":66372,"em":437823,"razao":15.16},{"ano":2008,"ept":66299,"em":440352,"razao":15.06},{"ano":2009,"ept":61894,"em":437302,"razao":14.15},{"ano":2010,"ept":59477,"em":429476,"razao":13.85},{"ano":2011,"ept":65125,"em":408613,"razao":15.94},{"ano":2012,"ept":65947,"em":392399,"razao":16.81},{"ano":2013,"ept":72450,"em":386668,"razao":18.74},{"ano":2014,"ept":124081,"em":383909,"razao":32.32},{"ano":2015,"ept":100817,"em":364620,"razao":27.65},{"ano":2016,"ept":92085,"em":361851,"razao":25.45},{"ano":2017,"ept":95511,"em":352383,"razao":27.1},{"ano":2018,"ept":103806,"em":339909,"razao":30.54},{"ano":2019,"ept":108952,"em":335117,"razao":32.51},{"ano":2020,"ept":118800,"em":342892,"razao":34.65},{"ano":2021,"ept":114160,"em":341641,"razao":33.42},{"ano":2022,"ept":128326,"em":342004,"razao":37.52},{"ano":2023,"ept":128655,"em":338436,"razao":38.01},{"ano":2024,"ept":108958,"em":338112,"razao":32.23},{"ano":2025,"ept":87848,"em":339537,"razao":25.87}],"PI":[{"ano":2007,"ept":15553,"em":181772,"razao":8.56},{"ano":2008,"ept":19943,"em":185710,"razao":10.74},{"ano":2009,"ept":24255,"em":178778,"razao":13.57},{"ano":2010,"ept":27695,"em":167418,"razao":16.54},{"ano":2011,"ept":28479,"em":162027,"razao":17.58},{"ano":2012,"ept":31311,"em":155998,"razao":20.07},{"ano":2013,"ept":32108,"em":148150,"razao":21.67},{"ano":2014,"ept":39994,"em":137773,"razao":29.03},{"ano":2015,"ept":48386,"em":142843,"razao":33.87},{"ano":2016,"ept":40625,"em":142710,"razao":28.47},{"ano":2017,"ept":51956,"em":141248,"razao":36.78},{"ano":2018,"ept":49446,"em":135125,"razao":36.59},{"ano":2019,"ept":45398,"em":128797,"razao":35.25},{"ano":2020,"ept":49491,"em":125788,"razao":39.34},{"ano":2021,"ept":46785,"em":132544,"razao":35.3},{"ano":2022,"ept":57549,"em":131808,"razao":43.66},{"ano":2023,"ept":72804,"em":128628,"razao":56.6},{"ano":2024,"ept":99534,"em":130065,"razao":76.53},{"ano":2025,"ept":106251,"em":127478,"razao":83.35}],"RJ":[{"ano":2007,"ept":121253,"em":642953,"razao":18.86},{"ano":2008,"ept":129247,"em":656444,"razao":19.69},{"ano":2009,"ept":134156,"em":635618,"razao":21.11},{"ano":2010,"ept":138775,"em":623706,"razao":22.25},{"ano":2011,"ept":139155,"em":609829,"razao":22.82},{"ano":2012,"ept":159082,"em":603198,"razao":26.37},{"ano":2013,"ept":167057,"em":596879,"razao":27.99},{"ano":2014,"ept":188936,"em":599482,"razao":31.52},{"ano":2015,"ept":176080,"em":583177,"razao":30.19},{"ano":2016,"ept":165580,"em":591882,"razao":27.98},{"ano":2017,"ept":171409,"em":573300,"razao":29.9},{"ano":2018,"ept":170571,"em":572899,"razao":29.77},{"ano":2019,"ept":200242,"em":575245,"razao":34.81},{"ano":2020,"ept":173892,"em":600032,"razao":28.98},{"ano":2021,"ept":162880,"em":581323,"razao":28.02},{"ano":2022,"ept":174289,"em":596206,"razao":29.23},{"ano":2023,"ept":166146,"em":554816,"razao":29.95},{"ano":2024,"ept":164697,"em":550676,"razao":29.91},{"ano":2025,"ept":154386,"em":527861,"razao":29.25}],"RN":[{"ano":2007,"ept":10717,"em":158223,"razao":6.77},{"ano":2008,"ept":12850,"em":155414,"razao":8.27},{"ano":2009,"ept":16158,"em":152326,"razao":10.61},{"ano":2010,"ept":19612,"em":149524,"razao":13.12},{"ano":2011,"ept":22407,"em":148561,"razao":15.08},{"ano":2012,"ept":22697,"em":145943,"razao":15.55},{"ano":2013,"ept":26227,"em":141532,"razao":18.53},{"ano":2014,"ept":34662,"em":135609,"razao":25.56},{"ano":2015,"ept":40176,"em":129452,"razao":31.04},{"ano":2016,"ept":34862,"em":126545,"razao":27.55},{"ano":2017,"ept":38922,"em":126265,"razao":30.83},{"ano":2018,"ept":43456,"em":124592,"razao":34.88},{"ano":2019,"ept":42215,"em":125082,"razao":33.75},{"ano":2020,"ept":44987,"em":124711,"razao":36.07},{"ano":2021,"ept":47112,"em":134147,"razao":35.12},{"ano":2022,"ept":49993,"em":132517,"razao":37.73},{"ano":2023,"ept":54799,"em":127507,"razao":42.98},{"ano":2024,"ept":55645,"em":127576,"razao":43.62},{"ano":2025,"ept":52644,"em":121146,"razao":43.46}],"RS":[{"ano":2007,"ept":99080,"em":440978,"razao":22.47},{"ano":2008,"ept":100482,"em":429630,"razao":23.39},{"ano":2009,"ept":104133,"em":416628,"razao":24.99},{"ano":2010,"ept":101502,"em":411763,"razao":24.65},{"ano":2011,"ept":107507,"em":404940,"razao":26.55},{"ano":2012,"ept":105353,"em":402506,"razao":26.17},{"ano":2013,"ept":105297,"em":396297,"razao":26.57},{"ano":2014,"ept":116533,"em":396596,"razao":29.38},{"ano":2015,"ept":131801,"em":385200,"razao":34.22},{"ano":2016,"ept":125497,"em":357808,"razao":35.07},{"ano":2017,"ept":120033,"em":347637,"razao":34.53},{"ano":2018,"ept":124415,"em":338065,"razao":36.8},{"ano":2019,"ept":121811,"em":335437,"razao":36.31},{"ano":2020,"ept":124236,"em":343314,"razao":36.19},{"ano":2021,"ept":129743,"em":346363,"razao":37.46},{"ano":2022,"ept":133850,"em":365084,"razao":36.66},{"ano":2023,"ept":153959,"em":349367,"razao":44.07},{"ano":2024,"ept":147500,"em":331216,"razao":44.53},{"ano":2025,"ept":148571,"em":312140,"razao":47.6}],"RO":[{"ano":2007,"ept":2842,"em":58633,"razao":4.85},{"ano":2008,"ept":2997,"em":60441,"razao":4.96},{"ano":2009,"ept":3940,"em":61074,"razao":6.45},{"ano":2010,"ept":5005,"em":61628,"razao":8.12},{"ano":2011,"ept":6047,"em":65424,"razao":9.24},{"ano":2012,"ept":6725,"em":65762,"razao":10.23},{"ano":2013,"ept":9048,"em":65015,"razao":13.92},{"ano":2014,"ept":10310,"em":65223,"razao":15.81},{"ano":2015,"ept":10833,"em":64827,"razao":16.71},{"ano":2016,"ept":10480,"em":60916,"razao":17.2},{"ano":2017,"ept":9868,"em":60537,"razao":16.3},{"ano":2018,"ept":13601,"em":59573,"razao":22.83},{"ano":2019,"ept":14314,"em":61581,"razao":23.24},{"ano":2020,"ept":10107,"em":62664,"razao":16.13},{"ano":2021,"ept":9157,"em":69117,"razao":13.25},{"ano":2022,"ept":10351,"em":66933,"razao":15.46},{"ano":2023,"ept":11961,"em":71396,"razao":16.75},{"ano":2024,"ept":11583,"em":73187,"razao":15.83},{"ano":2025,"ept":11320,"em":72685,"razao":15.57}],"RR":[{"ano":2007,"ept":1724,"em":16835,"razao":10.24},{"ano":2008,"ept":2322,"em":17146,"razao":13.54},{"ano":2009,"ept":2941,"em":17512,"razao":16.79},{"ano":2010,"ept":3267,"em":18463,"razao":17.69},{"ano":2011,"ept":3255,"em":19757,"razao":16.48},{"ano":2012,"ept":3164,"em":21055,"razao":15.03},{"ano":2013,"ept":4000,"em":21916,"razao":18.25},{"ano":2014,"ept":3657,"em":22721,"razao":16.1},{"ano":2015,"ept":4346,"em":22995,"razao":18.9},{"ano":2016,"ept":4241,"em":22461,"razao":18.88},{"ano":2017,"ept":6114,"em":22838,"razao":26.77},{"ano":2018,"ept":5508,"em":22191,"razao":24.82},{"ano":2019,"ept":5592,"em":23587,"razao":23.71},{"ano":2020,"ept":4713,"em":24225,"razao":19.46},{"ano":2021,"ept":3966,"em":26708,"razao":14.85},{"ano":2022,"ept":3515,"em":28875,"razao":12.17},{"ano":2023,"ept":4364,"em":27821,"razao":15.69},{"ano":2024,"ept":4427,"em":27890,"razao":15.87},{"ano":2025,"ept":5691,"em":25921,"razao":21.96}],"SC":[{"ano":2007,"ept":41719,"em":238408,"razao":17.5},{"ano":2008,"ept":41773,"em":243028,"razao":17.19},{"ano":2009,"ept":47440,"em":244190,"razao":19.43},{"ano":2010,"ept":54429,"em":248209,"razao":21.93},{"ano":2011,"ept":54179,"em":250791,"razao":21.6},{"ano":2012,"ept":58257,"em":254730,"razao":22.87},{"ano":2013,"ept":66311,"em":271439,"razao":24.43},{"ano":2014,"ept":72400,"em":284172,"razao":25.48},{"ano":2015,"ept":62547,"em":242166,"razao":25.83},{"ano":2016,"ept":59519,"em":235288,"razao":25.3},{"ano":2017,"ept":60770,"em":221744,"razao":27.41},{"ano":2018,"ept":66366,"em":242534,"razao":27.36},{"ano":2019,"ept":65753,"em":242876,"razao":27.07},{"ano":2020,"ept":65491,"em":254670,"razao":25.72},{"ano":2021,"ept":70382,"em":266537,"razao":26.41},{"ano":2022,"ept":65890,"em":264642,"razao":24.9},{"ano":2023,"ept":65191,"em":267040,"razao":24.41},{"ano":2024,"ept":84383,"em":271501,"razao":31.08},{"ano":2025,"ept":87865,"em":269965,"razao":32.55}],"SP":[{"ano":2007,"ept":261438,"em":1723514,"razao":15.17},{"ano":2008,"ept":309018,"em":1745294,"razao":17.71},{"ano":2009,"ept":335656,"em":1757519,"razao":19.1},{"ano":2010,"ept":352934,"em":1839727,"razao":19.18},{"ano":2011,"ept":366950,"em":1873180,"razao":19.59},{"ano":2012,"ept":386678,"em":1885376,"razao":20.51},{"ano":2013,"ept":397169,"em":1892016,"razao":20.99},{"ano":2014,"ept":446544,"em":1928274,"razao":23.16},{"ano":2015,"ept":420623,"em":1850964,"razao":22.72},{"ano":2016,"ept":432864,"em":1885281,"razao":22.96},{"ano":2017,"ept":435741,"em":1802429,"razao":24.18},{"ano":2018,"ept":440893,"em":1640170,"razao":26.88},{"ano":2019,"ept":427164,"em":1551906,"razao":27.53},{"ano":2020,"ept":458686,"em":1533097,"razao":29.92},{"ano":2021,"ept":443542,"em":1644465,"razao":26.97},{"ano":2022,"ept":482701,"em":1778846,"razao":27.14},{"ano":2023,"ept":503526,"em":1832726,"razao":27.47},{"ano":2024,"ept":532170,"em":1853141,"razao":28.72},{"ano":2025,"ept":574838,"em":1601154,"razao":35.9}],"SE":[{"ano":2007,"ept":15088,"em":87062,"razao":17.33},{"ano":2008,"ept":12364,"em":86868,"razao":14.23},{"ano":2009,"ept":11746,"em":84844,"razao":13.84},{"ano":2010,"ept":10863,"em":82969,"razao":13.09},{"ano":2011,"ept":8771,"em":81971,"razao":10.7},{"ano":2012,"ept":8000,"em":81763,"razao":9.78},{"ano":2013,"ept":7028,"em":81568,"razao":8.62},{"ano":2014,"ept":15720,"em":81801,"razao":19.22},{"ano":2015,"ept":12202,"em":81799,"razao":14.92},{"ano":2016,"ept":10358,"em":81179,"razao":12.76},{"ano":2017,"ept":12506,"em":79237,"razao":15.78},{"ano":2018,"ept":12635,"em":77939,"razao":16.21},{"ano":2019,"ept":11774,"em":76436,"razao":15.4},{"ano":2020,"ept":13377,"em":77638,"razao":17.23},{"ano":2021,"ept":11880,"em":83194,"razao":14.28},{"ano":2022,"ept":13521,"em":84978,"razao":15.91},{"ano":2023,"ept":14690,"em":83603,"razao":17.57},{"ano":2024,"ept":15546,"em":85784,"razao":18.12},{"ano":2025,"ept":16491,"em":84241,"razao":19.58}],"TO":[{"ano":2007,"ept":4668,"em":70875,"razao":6.59},{"ano":2008,"ept":7704,"em":70992,"razao":10.85},{"ano":2009,"ept":8754,"em":65966,"razao":13.27},{"ano":2010,"ept":8912,"em":65678,"razao":13.57},{"ano":2011,"ept":10056,"em":70520,"razao":14.26},{"ano":2012,"ept":9750,"em":69310,"razao":14.07},{"ano":2013,"ept":10989,"em":71158,"razao":15.44},{"ano":2014,"ept":11995,"em":70525,"razao":17.01},{"ano":2015,"ept":11793,"em":68654,"razao":17.18},{"ano":2016,"ept":14585,"em":66772,"razao":21.84},{"ano":2017,"ept":12740,"em":65045,"razao":19.59},{"ano":2018,"ept":14987,"em":63384,"razao":23.64},{"ano":2019,"ept":13642,"em":63721,"razao":21.41},{"ano":2020,"ept":8932,"em":66186,"razao":13.5},{"ano":2021,"ept":7500,"em":68479,"razao":10.95},{"ano":2022,"ept":8480,"em":67502,"razao":12.56},{"ano":2023,"ept":9394,"em":66103,"razao":14.21},{"ano":2024,"ept":10500,"em":70084,"razao":14.98},{"ano":2025,"ept":10421,"em":69916,"razao":14.91}]},"em_composicao":{"2023":{"total":7676743,"propedeutico":6853156,"integrado":782129,"qualif_prof":0,"normal_mag":41458},"2024":{"total":7790396,"propedeutico":6767102,"integrado":985923,"qualif_prof":0,"normal_mag":37371},"2025":{"total":7370879,"propedeutico":5620322,"integrado":1200606,"qualif_prof":517422,"normal_mag":32529}},"formas":["Integrado","Subsequente","Concomitante","Integrado à EJA","Normal/Magistério","IFTP exclusivo"],"br_forma":{"2023":{"Integrado":782129,"Subsequente":1078193,"Concomitante":331514,"Integrado à EJA":38313,"Normal/Magistério":41458,"IFTP exclusivo":0},"2024":{"Integrado":985923,"Subsequente":993442,"Concomitante":313866,"Integrado à EJA":58852,"Normal/Magistério":37371,"IFTP exclusivo":0},"2025":{"Integrado":1200606,"Subsequente":832032,"Concomitante":348446,"Integrado à EJA":56946,"Normal/Magistério":32529,"IFTP exclusivo":19586}},"uf_forma":{"2023":{"AC":{"Integrado":7026,"Subsequente":1242,"Concomitante":5530,"Integrado à EJA":0,"Normal/Magistério":0,"IFTP exclusivo":0},"AL":{"Integrado":10037,"Subsequente":11299,"Concomitante":1452,"Integrado à EJA":145,"Normal/Magistério":0,"IFTP exclusivo":0},"AP":{"Integrado":1754,"Subsequente":3364,"Concomitante":598,"Integrado à EJA":139,"Normal/Magistério":0,"IFTP exclusivo":0},"AM":{"Integrado":6711,"Subsequente":28965,"Concomitante":2917,"Integrado à EJA":264,"Normal/Magistério":0,"IFTP exclusivo":0},"BA":{"Integrado":84463,"Subsequente":60107,"Concomitante":2852,"Integrado à EJA":14363,"Normal/Magistério":185,"IFTP exclusivo":0},"CE":{"Integrado":65903,"Subsequente":36633,"Concomitante":4963,"Integrado à EJA":209,"Normal/Magistério":184,"IFTP exclusivo":0},"DF":{"Integrado":3749,"Subsequente":19065,"Concomitante":5463,"Integrado à EJA":644,"Normal/Magistério":95,"IFTP exclusivo":0},"ES":{"Integrado":34692,"Subsequente":13381,"Concomitante":8887,"Integrado à EJA":647,"Normal/Magistério":0,"IFTP exclusivo":0},"GO":{"Integrado":10690,"Subsequente":20222,"Concomitante":5373,"Integrado à EJA":484,"Normal/Magistério":69,"IFTP exclusivo":0},"MA":{"Integrado":27078,"Subsequente":21723,"Concomitante":2591,"Integrado à EJA":6729,"Normal/Magistério":3950,"IFTP exclusivo":0},"MT":{"Integrado":9191,"Subsequente":6220,"Concomitante":6261,"Integrado à EJA":16,"Normal/Magistério":0,"IFTP exclusivo":0},"MS":{"Integrado":5806,"Subsequente":13367,"Concomitante":1311,"Integrado à EJA":169,"Normal/Magistério":1211,"IFTP exclusivo":0},"MG":{"Integrado":56992,"Subsequente":136759,"Concomitante":61896,"Integrado à EJA":114,"Normal/Magistério":189,"IFTP exclusivo":0},"PA":{"Integrado":19655,"Subsequente":35608,"Concomitante":6254,"Integrado à EJA":1438,"Normal/Magistério":62,"IFTP exclusivo":0},"PB":{"Integrado":38083,"Subsequente":8889,"Concomitante":2014,"Integrado à EJA":214,"Normal/Magistério":235,"IFTP exclusivo":0},"PR":{"Integrado":73196,"Subsequente":54284,"Concomitante":4945,"Integrado à EJA":40,"Normal/Magistério":4862,"IFTP exclusivo":0},"PE":{"Integrado":31671,"Subsequente":92908,"Concomitante":3213,"Integrado à EJA":241,"Normal/Magistério":622,"IFTP exclusivo":0},"PI":{"Integrado":29330,"Subsequente":14330,"Concomitante":20532,"Integrado à EJA":8482,"Normal/Magistério":130,"IFTP exclusivo":0},"RJ":{"Integrado":28819,"Subsequente":78065,"Concomitante":39630,"Integrado à EJA":1544,"Normal/Magistério":18088,"IFTP exclusivo":0},"RN":{"Integrado":25017,"Subsequente":25434,"Concomitante":3885,"Integrado à EJA":452,"Normal/Magistério":11,"IFTP exclusivo":0},"RS":{"Integrado":33690,"Subsequente":43981,"Concomitante":66630,"Integrado à EJA":723,"Normal/Magistério":8935,"IFTP exclusivo":0},"RO":{"Integrado":5370,"Subsequente":5156,"Concomitante":1375,"Integrado à EJA":60,"Normal/Magistério":0,"IFTP exclusivo":0},"RR":{"Integrado":1811,"Subsequente":1343,"Concomitante":910,"Integrado à EJA":0,"Normal/Magistério":300,"IFTP exclusivo":0},"SC":{"Integrado":17769,"Subsequente":37085,"Concomitante":7882,"Integrado à EJA":324,"Normal/Magistério":2131,"IFTP exclusivo":0},"SP":{"Integrado":143718,"Subsequente":296114,"Concomitante":62923,"Integrado à EJA":572,"Normal/Magistério":199,"IFTP exclusivo":0},"SE":{"Integrado":5172,"Subsequente":8613,"Concomitante":846,"Integrado à EJA":59,"Normal/Magistério":0,"IFTP exclusivo":0},"TO":{"Integrado":4736,"Subsequente":4036,"Concomitante":381,"Integrado à EJA":241,"Normal/Magistério":0,"IFTP exclusivo":0}},"2024":{"AC":{"Integrado":1946,"Subsequente":1881,"Concomitante":4665,"Integrado à EJA":0,"Normal/Magistério":0,"IFTP exclusivo":0},"AL":{"Integrado":12391,"Subsequente":10158,"Concomitante":1571,"Integrado à EJA":469,"Normal/Magistério":48,"IFTP exclusivo":0},"AP":{"Integrado":1894,"Subsequente":3561,"Concomitante":63,"Integrado à EJA":87,"Normal/Magistério":0,"IFTP exclusivo":0},"AM":{"Integrado":7394,"Subsequente":26470,"Concomitante":9977,"Integrado à EJA":286,"Normal/Magistério":0,"IFTP exclusivo":0},"BA":{"Integrado":95658,"Subsequente":61696,"Concomitante":5865,"Integrado à EJA":14508,"Normal/Magistério":433,"IFTP exclusivo":0},"CE":{"Integrado":68678,"Subsequente":38533,"Concomitante":6922,"Integrado à EJA":436,"Normal/Magistério":180,"IFTP exclusivo":0},"DF":{"Integrado":3928,"Subsequente":20595,"Concomitante":5262,"Integrado à EJA":268,"Normal/Magistério":198,"IFTP exclusivo":0},"ES":{"Integrado":37655,"Subsequente":13359,"Concomitante":8899,"Integrado à EJA":745,"Normal/Magistério":1,"IFTP exclusivo":0},"GO":{"Integrado":14958,"Subsequente":17342,"Concomitante":4611,"Integrado à EJA":753,"Normal/Magistério":1,"IFTP exclusivo":0},"MA":{"Integrado":45278,"Subsequente":15382,"Concomitante":2023,"Integrado à EJA":8392,"Normal/Magistério":3478,"IFTP exclusivo":0},"MT":{"Integrado":9217,"Subsequente":6857,"Concomitante":4963,"Integrado à EJA":3,"Normal/Magistério":19,"IFTP exclusivo":0},"MS":{"Integrado":5719,"Subsequente":13256,"Concomitante":1609,"Integrado à EJA":344,"Normal/Magistério":560,"IFTP exclusivo":0},"MG":{"Integrado":75494,"Subsequente":130471,"Concomitante":52780,"Integrado à EJA":270,"Normal/Magistério":139,"IFTP exclusivo":0},"PA":{"Integrado":21622,"Subsequente":32710,"Concomitante":5306,"Integrado à EJA":1556,"Normal/Magistério":26,"IFTP exclusivo":0},"PB":{"Integrado":42515,"Subsequente":7792,"Concomitante":1788,"Integrado à EJA":273,"Normal/Magistério":299,"IFTP exclusivo":0},"PR":{"Integrado":101070,"Subsequente":50955,"Concomitante":5956,"Integrado à EJA":30,"Normal/Magistério":2014,"IFTP exclusivo":0},"PE":{"Integrado":33469,"Subsequente":68691,"Concomitante":5830,"Integrado à EJA":298,"Normal/Magistério":670,"IFTP exclusivo":0},"PI":{"Integrado":48556,"Subsequente":11082,"Concomitante":14016,"Integrado à EJA":25684,"Normal/Magistério":196,"IFTP exclusivo":0},"RJ":{"Integrado":30738,"Subsequente":74358,"Concomitante":40285,"Integrado à EJA":1408,"Normal/Magistério":17908,"IFTP exclusivo":0},"RN":{"Integrado":26504,"Subsequente":25602,"Concomitante":3069,"Integrado à EJA":453,"Normal/Magistério":17,"IFTP exclusivo":0},"RS":{"Integrado":33061,"Subsequente":42226,"Concomitante":62410,"Integrado à EJA":1060,"Normal/Magistério":8743,"IFTP exclusivo":0},"RO":{"Integrado":5574,"Subsequente":4433,"Concomitante":1281,"Integrado à EJA":295,"Normal/Magistério":0,"IFTP exclusivo":0},"RR":{"Integrado":1331,"Subsequente":1577,"Concomitante":1137,"Integrado à EJA":0,"Normal/Magistério":382,"IFTP exclusivo":0},"SC":{"Integrado":26384,"Subsequente":44096,"Concomitante":11813,"Integrado à EJA":309,"Normal/Magistério":1781,"IFTP exclusivo":0},"SP":{"Integrado":222590,"Subsequente":258373,"Concomitante":50375,"Integrado à EJA":568,"Normal/Magistério":264,"IFTP exclusivo":0},"SE":{"Integrado":6661,"Subsequente":7867,"Concomitante":857,"Integrado à EJA":147,"Normal/Magistério":14,"IFTP exclusivo":0},"TO":{"Integrado":5638,"Subsequente":4119,"Concomitante":533,"Integrado à EJA":210,"Normal/Magistério":0,"IFTP exclusivo":0}},"2025":{"AC":{"Integrado":12057,"Subsequente":1197,"Concomitante":348,"Integrado à EJA":2077,"Normal/Magistério":0,"IFTP exclusivo":542},"AL":{"Integrado":17016,"Subsequente":7365,"Concomitante":991,"Integrado à EJA":351,"Normal/Magistério":0,"IFTP exclusivo":373},"AP":{"Integrado":2739,"Subsequente":3643,"Concomitante":408,"Integrado à EJA":119,"Normal/Magistério":0,"IFTP exclusivo":65},"AM":{"Integrado":6544,"Subsequente":17444,"Concomitante":4793,"Integrado à EJA":522,"Normal/Magistério":27,"IFTP exclusivo":404},"BA":{"Integrado":107162,"Subsequente":58402,"Concomitante":4555,"Integrado à EJA":15668,"Normal/Magistério":0,"IFTP exclusivo":1344},"CE":{"Integrado":79427,"Subsequente":29087,"Concomitante":11259,"Integrado à EJA":444,"Normal/Magistério":249,"IFTP exclusivo":1044},"DF":{"Integrado":5267,"Subsequente":18662,"Concomitante":10139,"Integrado à EJA":262,"Normal/Magistério":0,"IFTP exclusivo":249},"ES":{"Integrado":37193,"Subsequente":14215,"Concomitante":8940,"Integrado à EJA":642,"Normal/Magistério":33,"IFTP exclusivo":565},"GO":{"Integrado":28145,"Subsequente":14709,"Concomitante":4042,"Integrado à EJA":4973,"Normal/Magistério":0,"IFTP exclusivo":2066},"MA":{"Integrado":54427,"Subsequente":14136,"Concomitante":4847,"Integrado à EJA":7938,"Normal/Magistério":2536,"IFTP exclusivo":1099},"MT":{"Integrado":23125,"Subsequente":4169,"Concomitante":4030,"Integrado à EJA":3,"Normal/Magistério":0,"IFTP exclusivo":624},"MS":{"Integrado":5716,"Subsequente":12899,"Concomitante":1790,"Integrado à EJA":542,"Normal/Magistério":1029,"IFTP exclusivo":137},"MG":{"Integrado":93476,"Subsequente":108037,"Concomitante":65345,"Integrado à EJA":445,"Normal/Magistério":69,"IFTP exclusivo":871},"PA":{"Integrado":22457,"Subsequente":26844,"Concomitante":8742,"Integrado à EJA":893,"Normal/Magistério":11,"IFTP exclusivo":786},"PB":{"Integrado":42810,"Subsequente":9357,"Concomitante":1899,"Integrado à EJA":325,"Normal/Magistério":242,"IFTP exclusivo":10},"PR":{"Integrado":110971,"Subsequente":47591,"Concomitante":13915,"Integrado à EJA":213,"Normal/Magistério":172,"IFTP exclusivo":1523},"PE":{"Integrado":34958,"Subsequente":45071,"Concomitante":6818,"Integrado à EJA":91,"Normal/Magistério":492,"IFTP exclusivo":418},"PI":{"Integrado":72684,"Subsequente":9281,"Concomitante":7095,"Integrado à EJA":17191,"Normal/Magistério":0,"IFTP exclusivo":0},"RJ":{"Integrado":29358,"Subsequente":63795,"Concomitante":39908,"Integrado à EJA":1105,"Normal/Magistério":17563,"IFTP exclusivo":2657},"RN":{"Integrado":29747,"Subsequente":18850,"Concomitante":2792,"Integrado à EJA":870,"Normal/Magistério":0,"IFTP exclusivo":385},"RS":{"Integrado":32653,"Subsequente":45115,"Concomitante":59739,"Integrado à EJA":1024,"Normal/Magistério":8311,"IFTP exclusivo":1729},"RO":{"Integrado":5934,"Subsequente":3595,"Concomitante":1622,"Integrado à EJA":87,"Normal/Magistério":0,"IFTP exclusivo":82},"RR":{"Integrado":1293,"Subsequente":1625,"Concomitante":1743,"Integrado à EJA":0,"Normal/Magistério":353,"IFTP exclusivo":677},"SC":{"Integrado":34688,"Subsequente":39949,"Concomitante":11532,"Integrado à EJA":284,"Normal/Magistério":1098,"IFTP exclusivo":314},"SP":{"Integrado":296353,"Subsequente":206105,"Concomitante":69897,"Integrado à EJA":579,"Normal/Magistério":315,"IFTP exclusivo":1589},"SE":{"Integrado":7552,"Subsequente":7954,"Concomitante":851,"Integrado à EJA":118,"Normal/Magistério":0,"IFTP exclusivo":16},"TO":{"Integrado":6854,"Subsequente":2935,"Concomitante":406,"Integrado à EJA":180,"Normal/Magistério":29,"IFTP exclusivo":17}}},"areas":["Gestão e negócios","Ambiente e saúde","Informação e comunicação","Controle e processos industriais","Recursos naturais","Segurança","Produção industrial","Infraestrutura","Produção cultural e design","Turismo, hospitalidade e lazer","Ensino Médio - Curso Normal/Magistério","Desenvolvimento educacional e social","Produção alimentícia","Militar"],"br_area":{"2023":{"Gestão e negócios":571143,"Ambiente e saúde":610678,"Informação e comunicação":301787,"Controle e processos industriais":268832,"Recursos naturais":142183,"Segurança":98959,"Produção industrial":57016,"Infraestrutura":52934,"Produção cultural e design":45346,"Turismo, hospitalidade e lazer":27783,"Ensino Médio - Curso Normal/Magistério":41458,"Desenvolvimento educacional e social":29971,"Produção alimentícia":22653,"Militar":864},"2024":{"Gestão e negócios":635779,"Ambiente e saúde":577993,"Informação e comunicação":372988,"Controle e processos industriais":258243,"Recursos naturais":156756,"Segurança":99074,"Produção industrial":59010,"Infraestrutura":53278,"Produção cultural e design":49596,"Turismo, hospitalidade e lazer":31761,"Ensino Médio - Curso Normal/Magistério":37371,"Desenvolvimento educacional e social":33375,"Produção alimentícia":23968,"Militar":262},"2025":{"Gestão e negócios":711071,"Ambiente e saúde":503998,"Informação e comunicação":424628,"Controle e processos industriais":292383,"Recursos naturais":169319,"Segurança":99234,"Produção industrial":62803,"Infraestrutura":53081,"Produção cultural e design":52711,"Turismo, hospitalidade e lazer":35641,"Ensino Médio - Curso Normal/Magistério":32529,"Desenvolvimento educacional e social":27729,"Produção alimentícia":24535,"Militar":483}},"uf_area":{"2023":{"AC":{"Gestão e negócios":4786,"Ambiente e saúde":3937,"Informação e comunicação":1707,"Controle e processos industriais":446,"Recursos naturais":1507,"Segurança":356,"Produção industrial":12,"Infraestrutura":258,"Produção cultural e design":146,"Turismo, hospitalidade e lazer":58,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":272,"Produção alimentícia":313,"Militar":0},"AL":{"Gestão e negócios":2476,"Ambiente e saúde":8455,"Informação e comunicação":2014,"Controle e processos industriais":2376,"Recursos naturais":1733,"Segurança":1007,"Produção industrial":1007,"Infraestrutura":1272,"Produção cultural e design":183,"Turismo, hospitalidade e lazer":947,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":502,"Produção alimentícia":961,"Militar":0},"AP":{"Gestão e negócios":1426,"Ambiente e saúde":1589,"Informação e comunicação":571,"Controle e processos industriais":508,"Recursos naturais":697,"Segurança":176,"Produção industrial":192,"Infraestrutura":387,"Produção cultural e design":189,"Turismo, hospitalidade e lazer":0,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":0,"Produção alimentícia":120,"Militar":0},"AM":{"Gestão e negócios":6798,"Ambiente e saúde":14657,"Informação e comunicação":4891,"Controle e processos industriais":5824,"Recursos naturais":2915,"Segurança":1118,"Produção industrial":624,"Infraestrutura":668,"Produção cultural e design":244,"Turismo, hospitalidade e lazer":596,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":522,"Produção alimentícia":0,"Militar":0},"BA":{"Gestão e negócios":49625,"Ambiente e saúde":32158,"Informação e comunicação":19366,"Controle e processos industriais":15370,"Recursos naturais":20745,"Segurança":8129,"Produção industrial":3983,"Infraestrutura":3504,"Produção cultural e design":1248,"Turismo, hospitalidade e lazer":2682,"Ensino Médio - Curso Normal/Magistério":185,"Desenvolvimento educacional e social":1674,"Produção alimentícia":3301,"Militar":0},"CE":{"Gestão e negócios":22089,"Ambiente e saúde":33179,"Informação e comunicação":18932,"Controle e processos industriais":10744,"Recursos naturais":5352,"Segurança":2413,"Produção industrial":2484,"Infraestrutura":4781,"Produção cultural e design":1871,"Turismo, hospitalidade e lazer":2861,"Ensino Médio - Curso Normal/Magistério":184,"Desenvolvimento educacional e social":1413,"Produção alimentícia":1589,"Militar":0},"DF":{"Gestão e negócios":3783,"Ambiente e saúde":11969,"Informação e comunicação":4321,"Controle e processos industriais":2684,"Recursos naturais":518,"Segurança":1023,"Produção industrial":172,"Infraestrutura":707,"Produção cultural e design":1115,"Turismo, hospitalidade e lazer":666,"Ensino Médio - Curso Normal/Magistério":95,"Desenvolvimento educacional e social":1656,"Produção alimentícia":131,"Militar":176},"ES":{"Gestão e negócios":15556,"Ambiente e saúde":9888,"Informação e comunicação":8777,"Controle e processos industriais":9618,"Recursos naturais":5537,"Segurança":2839,"Produção industrial":1045,"Infraestrutura":1599,"Produção cultural e design":1471,"Turismo, hospitalidade e lazer":640,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":125,"Produção alimentícia":512,"Militar":0},"GO":{"Gestão e negócios":5420,"Ambiente e saúde":11297,"Informação e comunicação":5203,"Controle e processos industriais":5940,"Recursos naturais":2418,"Segurança":1928,"Produção industrial":2507,"Infraestrutura":949,"Produção cultural e design":528,"Turismo, hospitalidade e lazer":147,"Ensino Médio - Curso Normal/Magistério":69,"Desenvolvimento educacional e social":27,"Produção alimentícia":405,"Militar":0},"MA":{"Gestão e negócios":11265,"Ambiente e saúde":17739,"Informação e comunicação":6470,"Controle e processos industriais":6650,"Recursos naturais":8341,"Segurança":1657,"Produção industrial":1189,"Infraestrutura":1559,"Produção cultural e design":820,"Turismo, hospitalidade e lazer":1417,"Ensino Médio - Curso Normal/Magistério":3950,"Desenvolvimento educacional e social":89,"Produção alimentícia":925,"Militar":0},"MT":{"Gestão e negócios":2514,"Ambiente e saúde":3925,"Informação e comunicação":1915,"Controle e processos industriais":4511,"Recursos naturais":3983,"Segurança":908,"Produção industrial":676,"Infraestrutura":920,"Produção cultural e design":0,"Turismo, hospitalidade e lazer":205,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":1676,"Produção alimentícia":455,"Militar":0},"MS":{"Gestão e negócios":3419,"Ambiente e saúde":3918,"Informação e comunicação":3145,"Controle e processos industriais":2914,"Recursos naturais":4683,"Segurança":771,"Produção industrial":345,"Infraestrutura":586,"Produção cultural e design":72,"Turismo, hospitalidade e lazer":0,"Ensino Médio - Curso Normal/Magistério":1211,"Desenvolvimento educacional e social":690,"Produção alimentícia":110,"Militar":0},"MG":{"Gestão e negócios":38334,"Ambiente e saúde":92824,"Informação e comunicação":32929,"Controle e processos industriais":34784,"Recursos naturais":18826,"Segurança":21360,"Produção industrial":5878,"Infraestrutura":5509,"Produção cultural e design":2140,"Turismo, hospitalidade e lazer":663,"Ensino Médio - Curso Normal/Magistério":189,"Desenvolvimento educacional e social":951,"Produção alimentícia":1563,"Militar":0},"PA":{"Gestão e negócios":6109,"Ambiente e saúde":24914,"Informação e comunicação":9060,"Controle e processos industriais":5472,"Recursos naturais":4876,"Segurança":5287,"Produção industrial":248,"Infraestrutura":2351,"Produção cultural e design":1518,"Turismo, hospitalidade e lazer":1194,"Ensino Médio - Curso Normal/Magistério":62,"Desenvolvimento educacional e social":1279,"Produção alimentícia":647,"Militar":0},"PB":{"Gestão e negócios":10215,"Ambiente e saúde":9019,"Informação e comunicação":10840,"Controle e processos industriais":3360,"Recursos naturais":6311,"Segurança":828,"Produção industrial":1295,"Infraestrutura":2324,"Produção cultural e design":2097,"Turismo, hospitalidade e lazer":2245,"Ensino Médio - Curso Normal/Magistério":235,"Desenvolvimento educacional e social":37,"Produção alimentícia":629,"Militar":0},"PR":{"Gestão e negócios":42467,"Ambiente e saúde":22592,"Informação e comunicação":20813,"Controle e processos industriais":14755,"Recursos naturais":12410,"Segurança":3302,"Produção industrial":3522,"Infraestrutura":2019,"Produção cultural e design":557,"Turismo, hospitalidade e lazer":592,"Ensino Médio - Curso Normal/Magistério":4862,"Desenvolvimento educacional e social":8143,"Produção alimentícia":1293,"Militar":0},"PE":{"Gestão e negócios":40254,"Ambiente e saúde":29616,"Informação e comunicação":17420,"Controle e processos industriais":12567,"Recursos naturais":2833,"Segurança":11128,"Produção industrial":1327,"Infraestrutura":2971,"Produção cultural e design":4554,"Turismo, hospitalidade e lazer":702,"Ensino Médio - Curso Normal/Magistério":622,"Desenvolvimento educacional e social":2945,"Produção alimentícia":1716,"Militar":0},"PI":{"Gestão e negócios":23170,"Ambiente e saúde":17651,"Informação e comunicação":19537,"Controle e processos industriais":2740,"Recursos naturais":4437,"Segurança":1692,"Produção industrial":321,"Infraestrutura":1007,"Produção cultural e design":394,"Turismo, hospitalidade e lazer":1089,"Ensino Médio - Curso Normal/Magistério":130,"Desenvolvimento educacional e social":44,"Produção alimentícia":592,"Militar":0},"RJ":{"Gestão e negócios":22709,"Ambiente e saúde":67245,"Informação e comunicação":10082,"Controle e processos industriais":26073,"Recursos naturais":1107,"Segurança":3948,"Produção industrial":3985,"Infraestrutura":3270,"Produção cultural e design":2168,"Turismo, hospitalidade e lazer":1708,"Ensino Médio - Curso Normal/Magistério":18088,"Desenvolvimento educacional e social":4913,"Produção alimentícia":837,"Militar":13},"RN":{"Gestão e negócios":9062,"Ambiente e saúde":14960,"Informação e comunicação":9529,"Controle e processos industriais":8274,"Recursos naturais":2939,"Segurança":2479,"Produção industrial":1301,"Infraestrutura":3170,"Produção cultural e design":587,"Turismo, hospitalidade e lazer":974,"Ensino Médio - Curso Normal/Magistério":11,"Desenvolvimento educacional e social":563,"Produção alimentícia":950,"Militar":0},"RS":{"Gestão e negócios":51754,"Ambiente e saúde":33038,"Informação e comunicação":13793,"Controle e processos industriais":17518,"Recursos naturais":11036,"Segurança":8711,"Produção industrial":3547,"Infraestrutura":1533,"Produção cultural e design":2222,"Turismo, hospitalidade e lazer":859,"Ensino Médio - Curso Normal/Magistério":8935,"Desenvolvimento educacional e social":228,"Produção alimentícia":785,"Militar":0},"RO":{"Gestão e negócios":1823,"Ambiente e saúde":2382,"Informação e comunicação":1772,"Controle e processos industriais":1116,"Recursos naturais":2729,"Segurança":545,"Produção industrial":603,"Infraestrutura":390,"Produção cultural e design":0,"Turismo, hospitalidade e lazer":101,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":286,"Produção alimentícia":214,"Militar":0},"RR":{"Gestão e negócios":1222,"Ambiente e saúde":986,"Informação e comunicação":254,"Controle e processos industriais":315,"Recursos naturais":875,"Segurança":46,"Produção industrial":13,"Infraestrutura":111,"Produção cultural e design":35,"Turismo, hospitalidade e lazer":101,"Ensino Médio - Curso Normal/Magistério":300,"Desenvolvimento educacional e social":81,"Produção alimentícia":25,"Militar":0},"SC":{"Gestão e negócios":15041,"Ambiente e saúde":10773,"Informação e comunicação":9982,"Controle e processos industriais":12836,"Recursos naturais":4580,"Segurança":2414,"Produção industrial":2971,"Infraestrutura":1817,"Produção cultural e design":1043,"Turismo, hospitalidade e lazer":877,"Ensino Médio - Curso Normal/Magistério":2131,"Desenvolvimento educacional e social":116,"Produção alimentícia":610,"Militar":0},"SP":{"Gestão e negócios":178576,"Ambiente e saúde":124877,"Informação e comunicação":65204,"Controle e processos industriais":58304,"Recursos naturais":7433,"Segurança":12698,"Produção industrial":17223,"Infraestrutura":8322,"Produção cultural e design":19756,"Turismo, hospitalidade e lazer":6244,"Ensino Médio - Curso Normal/Magistério":199,"Desenvolvimento educacional e social":791,"Produção alimentícia":3224,"Militar":675},"SE":{"Gestão e negócios":821,"Ambiente e saúde":4847,"Informação e comunicação":1906,"Controle e processos industriais":2436,"Recursos naturais":939,"Segurança":1483,"Produção industrial":381,"Infraestrutura":668,"Produção cultural e design":292,"Turismo, hospitalidade e lazer":82,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":171,"Produção alimentícia":664,"Militar":0},"TO":{"Gestão e negócios":429,"Ambiente e saúde":2243,"Informação e comunicação":1354,"Controle e processos industriais":697,"Recursos naturais":2423,"Segurança":713,"Produção industrial":165,"Infraestrutura":282,"Produção cultural e design":96,"Turismo, hospitalidade e lazer":133,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":777,"Produção alimentícia":82,"Militar":0}},"2024":{"AC":{"Gestão e negócios":2654,"Ambiente e saúde":2431,"Informação e comunicação":955,"Controle e processos industriais":84,"Recursos naturais":1740,"Segurança":243,"Produção industrial":0,"Infraestrutura":171,"Produção cultural e design":55,"Turismo, hospitalidade e lazer":0,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":32,"Produção alimentícia":127,"Militar":0},"AL":{"Gestão e negócios":4397,"Ambiente e saúde":7398,"Informação e comunicação":2228,"Controle e processos industriais":2137,"Recursos naturais":1954,"Segurança":1064,"Produção industrial":1131,"Infraestrutura":1100,"Produção cultural e design":457,"Turismo, hospitalidade e lazer":1735,"Ensino Médio - Curso Normal/Magistério":48,"Desenvolvimento educacional e social":67,"Produção alimentícia":921,"Militar":0},"AP":{"Gestão e negócios":1186,"Ambiente e saúde":1912,"Informação e comunicação":522,"Controle e processos industriais":262,"Recursos naturais":679,"Segurança":86,"Produção industrial":156,"Infraestrutura":350,"Produção cultural e design":317,"Turismo, hospitalidade e lazer":0,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":0,"Produção alimentícia":135,"Militar":0},"AM":{"Gestão e negócios":11949,"Ambiente e saúde":14957,"Informação e comunicação":4339,"Controle e processos industriais":4995,"Recursos naturais":3012,"Segurança":1039,"Produção industrial":623,"Infraestrutura":543,"Produção cultural e design":475,"Turismo, hospitalidade e lazer":812,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":1317,"Produção alimentícia":66,"Militar":0},"BA":{"Gestão e negócios":56386,"Ambiente e saúde":36881,"Informação e comunicação":21773,"Controle e processos industriais":13005,"Recursos naturais":22423,"Segurança":8659,"Produção industrial":4577,"Infraestrutura":3751,"Produção cultural e design":1161,"Turismo, hospitalidade e lazer":3085,"Ensino Médio - Curso Normal/Magistério":433,"Desenvolvimento educacional e social":2114,"Produção alimentícia":3912,"Militar":0},"CE":{"Gestão e negócios":22063,"Ambiente e saúde":33881,"Informação e comunicação":21185,"Controle e processos industriais":12127,"Recursos naturais":5831,"Segurança":2653,"Produção industrial":2966,"Infraestrutura":5119,"Produção cultural e design":2098,"Turismo, hospitalidade e lazer":3142,"Ensino Médio - Curso Normal/Magistério":180,"Desenvolvimento educacional e social":1785,"Produção alimentícia":1719,"Militar":0},"DF":{"Gestão e negócios":3658,"Ambiente e saúde":10900,"Informação e comunicação":5587,"Controle e processos industriais":3204,"Recursos naturais":597,"Segurança":891,"Produção industrial":107,"Infraestrutura":1125,"Produção cultural e design":1471,"Turismo, hospitalidade e lazer":674,"Ensino Médio - Curso Normal/Magistério":198,"Desenvolvimento educacional e social":1590,"Produção alimentícia":150,"Militar":99},"ES":{"Gestão e negócios":17569,"Ambiente e saúde":8528,"Informação e comunicação":9395,"Controle e processos industriais":10252,"Recursos naturais":6102,"Segurança":3730,"Produção industrial":715,"Infraestrutura":1710,"Produção cultural e design":1498,"Turismo, hospitalidade e lazer":561,"Ensino Médio - Curso Normal/Magistério":1,"Desenvolvimento educacional e social":142,"Produção alimentícia":456,"Militar":0},"GO":{"Gestão e negócios":8859,"Ambiente e saúde":8982,"Informação e comunicação":5950,"Controle e processos industriais":5596,"Recursos naturais":2428,"Segurança":1733,"Produção industrial":2012,"Infraestrutura":923,"Produção cultural e design":480,"Turismo, hospitalidade e lazer":274,"Ensino Médio - Curso Normal/Magistério":1,"Desenvolvimento educacional e social":0,"Produção alimentícia":427,"Militar":0},"MA":{"Gestão e negócios":19470,"Ambiente e saúde":15807,"Informação e comunicação":14339,"Controle e processos industriais":7204,"Recursos naturais":5880,"Segurança":1374,"Produção industrial":1133,"Infraestrutura":1331,"Produção cultural e design":745,"Turismo, hospitalidade e lazer":2716,"Ensino Médio - Curso Normal/Magistério":3478,"Desenvolvimento educacional e social":140,"Produção alimentícia":936,"Militar":0},"MT":{"Gestão e negócios":3157,"Ambiente e saúde":4389,"Informação e comunicação":1733,"Controle e processos industriais":2783,"Recursos naturais":4011,"Segurança":1205,"Produção industrial":678,"Infraestrutura":887,"Produção cultural e design":0,"Turismo, hospitalidade e lazer":176,"Ensino Médio - Curso Normal/Magistério":19,"Desenvolvimento educacional e social":1582,"Produção alimentícia":439,"Militar":0},"MS":{"Gestão e negócios":3789,"Ambiente e saúde":3336,"Informação e comunicação":3439,"Controle e processos industriais":2664,"Recursos naturais":5546,"Segurança":782,"Produção industrial":392,"Infraestrutura":559,"Produção cultural e design":56,"Turismo, hospitalidade e lazer":7,"Ensino Médio - Curso Normal/Magistério":560,"Desenvolvimento educacional e social":321,"Produção alimentícia":37,"Militar":0},"MG":{"Gestão e negócios":44922,"Ambiente e saúde":76533,"Informação e comunicação":48199,"Controle e processos industriais":31543,"Recursos naturais":22417,"Segurança":18761,"Produção industrial":6256,"Infraestrutura":4579,"Produção cultural e design":2707,"Turismo, hospitalidade e lazer":700,"Ensino Médio - Curso Normal/Magistério":139,"Desenvolvimento educacional e social":731,"Produção alimentícia":1667,"Militar":0},"PA":{"Gestão e negócios":7023,"Ambiente e saúde":20883,"Informação e comunicação":9015,"Controle e processos industriais":4908,"Recursos naturais":6075,"Segurança":6124,"Produção industrial":276,"Infraestrutura":2180,"Produção cultural e design":1670,"Turismo, hospitalidade e lazer":1120,"Ensino Médio - Curso Normal/Magistério":26,"Desenvolvimento educacional e social":1013,"Produção alimentícia":907,"Militar":0},"PB":{"Gestão e negócios":12240,"Ambiente e saúde":8105,"Informação e comunicação":12124,"Controle e processos industriais":3443,"Recursos naturais":6620,"Segurança":746,"Produção industrial":1115,"Infraestrutura":2310,"Produção cultural e design":2749,"Turismo, hospitalidade e lazer":2214,"Ensino Médio - Curso Normal/Magistério":299,"Desenvolvimento educacional e social":28,"Produção alimentícia":674,"Militar":0},"PR":{"Gestão e negócios":49179,"Ambiente e saúde":25650,"Informação e comunicação":26392,"Controle e processos industriais":15802,"Recursos naturais":15688,"Segurança":3265,"Produção industrial":4791,"Infraestrutura":2095,"Produção cultural e design":656,"Turismo, hospitalidade e lazer":813,"Ensino Médio - Curso Normal/Magistério":2014,"Desenvolvimento educacional e social":12337,"Produção alimentícia":1343,"Militar":0},"PE":{"Gestão e negócios":25539,"Ambiente e saúde":29850,"Informação e comunicação":17210,"Controle e processos industriais":11489,"Recursos naturais":3385,"Segurança":6034,"Produção industrial":1109,"Infraestrutura":3191,"Produção cultural e design":5012,"Turismo, hospitalidade e lazer":631,"Ensino Médio - Curso Normal/Magistério":670,"Desenvolvimento educacional e social":3256,"Produção alimentícia":1582,"Militar":0},"PI":{"Gestão e negócios":25402,"Ambiente e saúde":16660,"Informação e comunicação":42728,"Controle e processos industriais":3675,"Recursos naturais":4942,"Segurança":1437,"Produção industrial":392,"Infraestrutura":1103,"Produção cultural e design":989,"Turismo, hospitalidade e lazer":1405,"Ensino Médio - Curso Normal/Magistério":196,"Desenvolvimento educacional e social":0,"Produção alimentícia":605,"Militar":0},"RJ":{"Gestão e negócios":20389,"Ambiente e saúde":68822,"Informação e comunicação":10096,"Controle e processos industriais":25841,"Recursos naturais":1315,"Segurança":4616,"Produção industrial":3956,"Infraestrutura":2951,"Produção cultural e design":1893,"Turismo, hospitalidade e lazer":1422,"Ensino Médio - Curso Normal/Magistério":17908,"Desenvolvimento educacional e social":4786,"Produção alimentícia":702,"Militar":0},"RN":{"Gestão e negócios":9548,"Ambiente e saúde":12891,"Informação e comunicação":10067,"Controle e processos industriais":8297,"Recursos naturais":3033,"Segurança":3341,"Produção industrial":1491,"Infraestrutura":3752,"Produção cultural e design":680,"Turismo, hospitalidade e lazer":899,"Ensino Médio - Curso Normal/Magistério":17,"Desenvolvimento educacional e social":597,"Produção alimentícia":1032,"Militar":0},"RS":{"Gestão e negócios":43870,"Ambiente e saúde":30548,"Informação e comunicação":13671,"Controle e processos industriais":18136,"Recursos naturais":11079,"Segurança":10951,"Produção industrial":3793,"Infraestrutura":1607,"Produção cultural e design":2639,"Turismo, hospitalidade e lazer":1340,"Ensino Médio - Curso Normal/Magistério":8743,"Desenvolvimento educacional e social":335,"Produção alimentícia":788,"Militar":0},"RO":{"Gestão e negócios":1727,"Ambiente e saúde":2050,"Informação e comunicação":1972,"Controle e processos industriais":1039,"Recursos naturais":2663,"Segurança":578,"Produção industrial":530,"Infraestrutura":711,"Produção cultural e design":0,"Turismo, hospitalidade e lazer":0,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":103,"Produção alimentícia":210,"Militar":0},"RR":{"Gestão e negócios":1267,"Ambiente e saúde":1403,"Informação e comunicação":79,"Controle e processos industriais":121,"Recursos naturais":736,"Segurança":69,"Produção industrial":13,"Infraestrutura":32,"Produção cultural e design":53,"Turismo, hospitalidade e lazer":89,"Ensino Médio - Curso Normal/Magistério":382,"Desenvolvimento educacional e social":84,"Produção alimentícia":99,"Militar":0},"SC":{"Gestão e negócios":30372,"Ambiente e saúde":10611,"Informação e comunicação":12246,"Controle e processos industriais":12805,"Recursos naturais":4741,"Segurança":2770,"Produção industrial":3686,"Infraestrutura":1943,"Produção cultural e design":1309,"Turismo, hospitalidade e lazer":1041,"Ensino Médio - Curso Normal/Magistério":1781,"Desenvolvimento educacional e social":116,"Produção alimentícia":962,"Militar":0},"SP":{"Gestão e negócios":207150,"Ambiente e saúde":117872,"Informação e comunicação":73469,"Controle e processos industriais":53455,"Recursos naturais":10152,"Segurança":14300,"Produção industrial":16331,"Infraestrutura":8260,"Produção cultural e design":20015,"Turismo, hospitalidade e lazer":6658,"Ensino Médio - Curso Normal/Magistério":264,"Desenvolvimento educacional e social":658,"Produção alimentícia":3423,"Militar":163},"SE":{"Gestão e negócios":1255,"Ambiente e saúde":4191,"Informação e comunicação":2636,"Controle e processos industriais":2438,"Recursos naturais":811,"Segurança":1782,"Produção industrial":516,"Infraestrutura":739,"Produção cultural e design":315,"Turismo, hospitalidade e lazer":123,"Ensino Médio - Curso Normal/Magistério":14,"Desenvolvimento educacional e social":155,"Produção alimentícia":571,"Militar":0},"TO":{"Gestão e negócios":759,"Ambiente e saúde":2522,"Informação e comunicação":1639,"Controle e processos industriais":938,"Recursos naturais":2896,"Segurança":841,"Produção industrial":265,"Infraestrutura":256,"Produção cultural e design":96,"Turismo, hospitalidade e lazer":124,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":86,"Produção alimentícia":78,"Militar":0}},"2025":{"AC":{"Gestão e negócios":5692,"Ambiente e saúde":4158,"Informação e comunicação":2311,"Controle e processos industriais":293,"Recursos naturais":2106,"Segurança":247,"Produção industrial":0,"Infraestrutura":313,"Produção cultural e design":170,"Turismo, hospitalidade e lazer":168,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":81,"Produção alimentícia":682,"Militar":0},"AL":{"Gestão e negócios":5956,"Ambiente e saúde":4837,"Informação e comunicação":3766,"Controle e processos industriais":2630,"Recursos naturais":2171,"Segurança":844,"Produção industrial":1087,"Infraestrutura":1230,"Produção cultural e design":787,"Turismo, hospitalidade e lazer":1823,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":25,"Produção alimentícia":940,"Militar":0},"AP":{"Gestão e negócios":1725,"Ambiente e saúde":1779,"Informação e comunicação":913,"Controle e processos industriais":443,"Recursos naturais":713,"Segurança":203,"Produção industrial":222,"Infraestrutura":364,"Produção cultural e design":338,"Turismo, hospitalidade e lazer":139,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":0,"Produção alimentícia":135,"Militar":0},"AM":{"Gestão e negócios":5837,"Ambiente e saúde":10394,"Informação e comunicação":4211,"Controle e processos industriais":3814,"Recursos naturais":2484,"Segurança":806,"Produção industrial":513,"Infraestrutura":323,"Produção cultural e design":241,"Turismo, hospitalidade e lazer":410,"Ensino Médio - Curso Normal/Magistério":27,"Desenvolvimento educacional e social":534,"Produção alimentícia":140,"Militar":0},"BA":{"Gestão e negócios":62666,"Ambiente e saúde":36683,"Informação e comunicação":23176,"Controle e processos industriais":13594,"Recursos naturais":22705,"Segurança":8332,"Produção industrial":5537,"Infraestrutura":3707,"Produção cultural e design":1379,"Turismo, hospitalidade e lazer":3624,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":1552,"Produção alimentícia":4176,"Militar":0},"CE":{"Gestão e negócios":29688,"Ambiente e saúde":30749,"Informação e comunicação":22404,"Controle e processos industriais":12127,"Recursos naturais":6326,"Segurança":2612,"Produção industrial":2754,"Infraestrutura":4982,"Produção cultural e design":2316,"Turismo, hospitalidade e lazer":3072,"Ensino Médio - Curso Normal/Magistério":249,"Desenvolvimento educacional e social":2582,"Produção alimentícia":1649,"Militar":0},"DF":{"Gestão e negócios":5728,"Ambiente e saúde":11277,"Informação e comunicação":6212,"Controle e processos industriais":3388,"Recursos naturais":550,"Segurança":1109,"Produção industrial":184,"Infraestrutura":1317,"Produção cultural e design":2145,"Turismo, hospitalidade e lazer":911,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":1258,"Produção alimentícia":186,"Militar":314},"ES":{"Gestão e negócios":16726,"Ambiente e saúde":7810,"Informação e comunicação":9467,"Controle e processos industriais":12056,"Recursos naturais":6273,"Segurança":3773,"Produção industrial":953,"Infraestrutura":1928,"Produção cultural e design":1378,"Turismo, hospitalidade e lazer":596,"Ensino Médio - Curso Normal/Magistério":33,"Desenvolvimento educacional e social":129,"Produção alimentícia":466,"Militar":0},"GO":{"Gestão e negócios":12778,"Ambiente e saúde":8476,"Informação e comunicação":12975,"Controle e processos industriais":9119,"Recursos naturais":3161,"Segurança":1872,"Produção industrial":2616,"Infraestrutura":983,"Produção cultural e design":933,"Turismo, hospitalidade e lazer":228,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":40,"Produção alimentícia":754,"Militar":0},"MA":{"Gestão e negócios":26404,"Ambiente e saúde":14730,"Informação e comunicação":18443,"Controle e processos industriais":7675,"Recursos naturais":5747,"Segurança":2358,"Produção industrial":1135,"Infraestrutura":1468,"Produção cultural e design":822,"Turismo, hospitalidade e lazer":2531,"Ensino Médio - Curso Normal/Magistério":2536,"Desenvolvimento educacional e social":77,"Produção alimentícia":1057,"Militar":0},"MT":{"Gestão e negócios":8092,"Ambiente e saúde":4123,"Informação e comunicação":4492,"Controle e processos industriais":5084,"Recursos naturais":5582,"Segurança":1397,"Produção industrial":916,"Infraestrutura":1063,"Produção cultural e design":16,"Turismo, hospitalidade e lazer":238,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":430,"Produção alimentícia":518,"Militar":0},"MS":{"Gestão e negócios":4246,"Ambiente e saúde":2760,"Informação e comunicação":3254,"Controle e processos industriais":2915,"Recursos naturais":5672,"Segurança":707,"Produção industrial":525,"Infraestrutura":316,"Produção cultural e design":6,"Turismo, hospitalidade e lazer":121,"Ensino Médio - Curso Normal/Magistério":1029,"Desenvolvimento educacional e social":459,"Produção alimentícia":103,"Militar":0},"MG":{"Gestão e negócios":49677,"Ambiente e saúde":65129,"Informação e comunicação":55123,"Controle e processos industriais":38643,"Recursos naturais":24801,"Segurança":17285,"Produção industrial":5928,"Infraestrutura":4968,"Produção cultural e design":2977,"Turismo, hospitalidade e lazer":922,"Ensino Médio - Curso Normal/Magistério":69,"Desenvolvimento educacional e social":681,"Produção alimentícia":2040,"Militar":0},"PA":{"Gestão e negócios":6337,"Ambiente e saúde":16525,"Informação e comunicação":12466,"Controle e processos industriais":5690,"Recursos naturais":6505,"Segurança":5563,"Produção industrial":313,"Infraestrutura":2036,"Produção cultural e design":1572,"Turismo, hospitalidade e lazer":1044,"Ensino Médio - Curso Normal/Magistério":11,"Desenvolvimento educacional e social":964,"Produção alimentícia":707,"Militar":0},"PB":{"Gestão e negócios":13191,"Ambiente e saúde":7547,"Informação e comunicação":12740,"Controle e processos industriais":3956,"Recursos naturais":6815,"Segurança":1003,"Produção industrial":915,"Infraestrutura":2524,"Produção cultural e design":2729,"Turismo, hospitalidade e lazer":2204,"Ensino Médio - Curso Normal/Magistério":242,"Desenvolvimento educacional e social":235,"Produção alimentícia":542,"Militar":0},"PR":{"Gestão e negócios":55008,"Ambiente e saúde":22703,"Informação e comunicação":27243,"Controle e processos industriais":23564,"Recursos naturais":17356,"Segurança":3187,"Produção industrial":5696,"Infraestrutura":3315,"Produção cultural e design":634,"Turismo, hospitalidade e lazer":1552,"Ensino Médio - Curso Normal/Magistério":172,"Desenvolvimento educacional e social":12620,"Produção alimentícia":1335,"Militar":0},"PE":{"Gestão e negócios":18884,"Ambiente e saúde":23669,"Informação e comunicação":17345,"Controle e processos industriais":10219,"Recursos naturais":3747,"Segurança":4199,"Produção industrial":1086,"Infraestrutura":2878,"Produção cultural e design":3015,"Turismo, hospitalidade e lazer":817,"Ensino Médio - Curso Normal/Magistério":492,"Desenvolvimento educacional e social":496,"Produção alimentícia":1001,"Militar":0},"PI":{"Gestão e negócios":35206,"Ambiente e saúde":17212,"Informação e comunicação":38514,"Controle e processos industriais":3279,"Recursos naturais":5826,"Segurança":1529,"Produção industrial":316,"Infraestrutura":1059,"Produção cultural e design":1102,"Turismo, hospitalidade e lazer":1497,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":58,"Produção alimentícia":653,"Militar":0},"RJ":{"Gestão e negócios":19299,"Ambiente e saúde":55140,"Informação e comunicação":10897,"Controle e processos industriais":29186,"Recursos naturais":1026,"Segurança":5802,"Produção industrial":4553,"Infraestrutura":2737,"Produção cultural e design":2156,"Turismo, hospitalidade e lazer":1583,"Ensino Médio - Curso Normal/Magistério":17563,"Desenvolvimento educacional e social":3744,"Produção alimentícia":700,"Militar":0},"RN":{"Gestão e negócios":9555,"Ambiente e saúde":10091,"Informação e comunicação":10523,"Controle e processos industriais":8432,"Recursos naturais":2960,"Segurança":3720,"Produção industrial":1511,"Infraestrutura":2716,"Produção cultural e design":551,"Turismo, hospitalidade e lazer":1297,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":93,"Produção alimentícia":1195,"Militar":0},"RS":{"Gestão e negócios":47540,"Ambiente e saúde":25147,"Informação e comunicação":15821,"Controle e processos industriais":18705,"Recursos naturais":10863,"Segurança":11804,"Produção industrial":3774,"Infraestrutura":1529,"Produção cultural e design":2554,"Turismo, hospitalidade e lazer":1322,"Ensino Médio - Curso Normal/Magistério":8311,"Desenvolvimento educacional e social":396,"Produção alimentícia":799,"Militar":6},"RO":{"Gestão e negócios":1190,"Ambiente e saúde":1920,"Informação e comunicação":2053,"Controle e processos industriais":1537,"Recursos naturais":2675,"Segurança":612,"Produção industrial":396,"Infraestrutura":571,"Produção cultural e design":0,"Turismo, hospitalidade e lazer":41,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":124,"Produção alimentícia":201,"Militar":0},"RR":{"Gestão e negócios":1337,"Ambiente e saúde":2139,"Informação e comunicação":430,"Controle e processos industriais":234,"Recursos naturais":755,"Segurança":20,"Produção industrial":0,"Infraestrutura":115,"Produção cultural e design":170,"Turismo, hospitalidade e lazer":20,"Ensino Médio - Curso Normal/Magistério":353,"Desenvolvimento educacional e social":0,"Produção alimentícia":118,"Militar":0},"SC":{"Gestão e negócios":31581,"Ambiente e saúde":10349,"Informação e comunicação":13021,"Controle e processos industriais":14062,"Recursos naturais":4752,"Segurança":2855,"Produção industrial":4167,"Infraestrutura":1993,"Produção cultural e design":1819,"Turismo, hospitalidade e lazer":1077,"Ensino Médio - Curso Normal/Magistério":1098,"Desenvolvimento educacional e social":187,"Produção alimentícia":904,"Militar":0},"SP":{"Gestão e negócios":233663,"Ambiente e saúde":103304,"Informação e comunicação":91320,"Controle e processos industriais":57737,"Recursos naturais":14246,"Segurança":14760,"Produção industrial":17022,"Infraestrutura":7779,"Produção cultural e design":22653,"Turismo, hospitalidade e lazer":8022,"Ensino Médio - Curso Normal/Magistério":315,"Desenvolvimento educacional e social":876,"Produção alimentícia":2978,"Militar":163},"SE":{"Gestão e negócios":2149,"Ambiente e saúde":3454,"Informação e comunicação":3364,"Controle e processos industriais":2780,"Recursos naturais":664,"Segurança":1931,"Produção industrial":483,"Infraestrutura":680,"Produção cultural e design":195,"Turismo, hospitalidade e lazer":253,"Ensino Médio - Curso Normal/Magistério":0,"Desenvolvimento educacional e social":88,"Produção alimentícia":450,"Militar":0},"TO":{"Gestão e negócios":916,"Ambiente e saúde":1893,"Informação e comunicação":2144,"Controle e processos industriais":1221,"Recursos naturais":2838,"Segurança":704,"Produção industrial":201,"Infraestrutura":187,"Produção cultural e design":53,"Turismo, hospitalidade e lazer":129,"Ensino Médio - Curso Normal/Magistério":29,"Desenvolvimento educacional e social":0,"Produção alimentícia":106,"Militar":0}}},"curso_area":{"Agente Comunitário de Saúde":"Ambiente e saúde","Análises clínicas":"Ambiente e saúde","Controle Ambiental":"Ambiente e saúde","Enfermagem":"Ambiente e saúde","Equipamentos Biomédicos":"Ambiente e saúde","Estética":"Ambiente e saúde","Farmácia":"Ambiente e saúde","Gerência de Saúde":"Ambiente e saúde","Saúde Bucal":"Ambiente e saúde","Meio Ambiente":"Ambiente e saúde","Radiologia":"Ambiente e saúde","Registros e Informações em Saúde":"Ambiente e saúde","Vigilância em Saúde":"Ambiente e saúde","Veterinária":"Ambiente e saúde","Outros - Eixo Ambiente e Saúde":"Ambiente e saúde","Eletroeletrônica":"Controle e processos industriais","Eletrotécnica":"Controle e processos industriais","Manutenção Automotiva":"Controle e processos industriais","Mecânica":"Controle e processos industriais","Multimeios Didáticos":"Desenvolvimento educacional e social","Secretaria Escolar":"Desenvolvimento educacional e social","Tradução e Interpretação de Libras":"Desenvolvimento educacional e social","Outros - Eixo Desenvolvimento educacional e social":"Desenvolvimento educacional e social","Administração":"Gestão e negócios","Comércio":"Gestão e negócios","Comércio Exterior":"Gestão e negócios","Contabilidade":"Gestão e negócios","Finanças":"Gestão e negócios","Logística":"Gestão e negócios","Marketing":"Gestão e negócios","Recursos Humanos":"Gestão e negócios","Secretariado":"Gestão e negócios","Serviços Públicos":"Gestão e negócios","Vendas":"Gestão e negócios","Serviços Jurídicos":"Gestão e negócios","Outros - Eixo Gestão e Negócios":"Gestão e negócios","Informática":"Informação e comunicação","Informática para Internet":"Informação e comunicação","Manutenção e Suporte em Informática":"Informação e comunicação","Redes de Computadores":"Informação e comunicação","Telecomunicações":"Informação e comunicação","Computação Gráfica":"Informação e comunicação","Outros - Eixo Informação e Comunicação":"Informação e comunicação","Desenho de Construção Civil":"Infraestrutura","Edificações":"Infraestrutura","Alimentos":"Produção alimentícia","Confeitaria":"Produção alimentícia","Panificação":"Produção alimentícia","Outros - Eixo Produção Alimentícia":"Produção alimentícia","Artes Circenses":"Produção cultural e design","Artesanato":"Produção cultural e design","Outros - Eixo Produção Cultural e Design":"Produção cultural e design","Vestuário":"Produção industrial","Agricultura":"Recursos naturais","Agroecologia":"Recursos naturais","Agronegócio":"Recursos naturais","Agropecuária":"Recursos naturais","Aquicultura":"Recursos naturais","Florestas":"Recursos naturais","Recursos Pesqueiros":"Recursos naturais","Zootecnia":"Recursos naturais","Outros - Eixo Recursos Naturais":"Recursos naturais","Segurança do Trabalho":"Segurança","Gastronomia":"Turismo, hospitalidade e lazer","Hospedagem":"Turismo, hospitalidade e lazer","Outros - Eixo Turismo, hospitalidade e Lazer":"Turismo, hospitalidade e lazer","Imobilizações Ortopédicas":"Ambiente e saúde","Nutrição e Dietética":"Ambiente e saúde","Óptica":"Ambiente e saúde","Podologia":"Ambiente e saúde","Prótese Dentária":"Ambiente e saúde","Optometria":"Ambiente e saúde","Automação Industrial":"Controle e processos industriais","Eletromecânica":"Controle e processos industriais","Eletrônica":"Controle e processos industriais","Refrigeração e Climatização":"Controle e processos industriais","Soldagem":"Controle e processos industriais","Alimentação Escolar":"Desenvolvimento educacional e social","Brinquedoteca":"Desenvolvimento educacional e social","Cooperativismo":"Gestão e negócios","Transações Imobiliárias":"Gestão e negócios","Desenvolvimento de Sistemas":"Informação e comunicação","Estradas":"Infraestrutura","Agroindústria":"Produção alimentícia","Teatro":"Produção cultural e design","Canto":"Produção cultural e design","Dança":"Produção cultural e design","Instrumento Musical (nome do instrumento)":"Produção cultural e design","Produção de Moda":"Produção cultural e design","Rádio e Televisão":"Produção cultural e design","Plásticos":"Produção industrial","Biotecnologia":"Produção industrial","Petroquímica":"Produção industrial","Química":"Produção industrial","Mineração":"Recursos naturais","Outros - Eixo Segurança":"Segurança","Eventos":"Turismo, hospitalidade e lazer","Guia de Turismo":"Turismo, hospitalidade e lazer","Serviços de Restaurante e Bar":"Turismo, hospitalidade e lazer","Hemoterapia":"Ambiente e saúde","Massoterapia":"Ambiente e saúde","Mecatrônica":"Controle e processos industriais","Outros - Eixo Controle e Processos Industriais":"Controle e processos industriais","Desenvolvimento Comunitário":"Desenvolvimento educacional e social","Qualidade":"Gestão e negócios","Programação de Jogos Digitais":"Informação e comunicação","Agrimensura":"Infraestrutura","Geoprocessamento":"Infraestrutura","Multimídia":"Produção cultural e design","Paisagismo":"Produção cultural e design","Petróleo e Gás":"Produção industrial","Imagem Pessoal":"Ambiente e saúde","Cuidados de Idosos":"Ambiente e saúde","Sistemas de Energia Renovável":"Controle e processos industriais","Artes Visuais":"Produção cultural e design","Processos Fotográficos":"Produção cultural e design","Publicidade":"Produção cultural e design","Pesca":"Recursos naturais","Metalurgia":"Controle e processos industriais","Fabricação Mecânica":"Controle e processos industriais","Ensino Médio - Curso Normal/Magistério":"Ensino Médio - Curso Normal/Magistério","Saneamento":"Infraestrutura","Composição e Arranjo":"Produção cultural e design","Conservação e Restauro":"Produção cultural e design","Design de Móveis":"Produção cultural e design","Produção de Áudio e Vídeo":"Produção cultural e design","Biocombustíveis":"Produção industrial","Fruticultura":"Recursos naturais","Geologia":"Recursos naturais","Recursos Minerais":"Recursos naturais","Portos":"Infraestrutura","Design de Interiores":"Produção cultural e design","Modelagem do Vestuário":"Produção cultural e design","Regência":"Produção cultural e design","Construção Naval":"Produção industrial","Móveis":"Produção industrial","Têxtil":"Produção industrial","Apicultura":"Recursos naturais","Necropsia":"Ambiente e saúde","Manutenção Aeronáutica em Aviônicos":"Controle e processos industriais","Manutenção Aeronáutica em Célula":"Controle e processos industriais","Manutenção Aeronáutica em Grupo Motopropulsor":"Controle e processos industriais","Mecânica de Aeronaves":"Militar","Design Gráfico":"Produção cultural e design","Documentação Musical":"Produção cultural e design","Cenografia":"Produção cultural e design","Órteses e Próteses":"Ambiente e saúde","Manutenção de Sistemas Metroferroviários":"Controle e processos industriais","Condomínio":"Gestão e negócios","Cafeicultura":"Recursos naturais","Transporte Rodoviário":"Infraestrutura","Análises Químicas":"Produção industrial","Outros - Eixo Produção Industrial":"Produção industrial","Manutenção de Máquinas Industriais":"Controle e processos industriais","Agenciamento de Viagem":"Turismo, hospitalidade e lazer","Fundição":"Controle e processos industriais","Outros - Eixo Infra-Estrutura":"Infraestrutura","Design de Calçados":"Produção cultural e design","Figurino Cênico":"Produção cultural e design","Açúcar e Álcool":"Produção industrial","Calçados":"Produção industrial","Celulose e Papel":"Produção industrial","Processos Gráficos":"Produção industrial","Planejamento e Controle da Produção":"Produção industrial","Prevenção e Combate a Incêndios":"Segurança","Infraestrutura escolar":"Desenvolvimento educacional e social","Manutenção de Máquinas Pesadas":"Controle e processos industriais","Biblioteconomia":"Desenvolvimento educacional e social","Geodésia e Cartografia":"Infraestrutura","Laboratório de Ciências da Natureza":"Desenvolvimento educacional e social","Transporte Aquaviário":"Infraestrutura","Metrologia":"Controle e processos industriais","Fabricação de Instrumentos Musicais":"Produção cultural e design","Produção Cultural":"Produção cultural e design","Cerâmica":"Produção industrial","Cervejaria":"Produção alimentícia","Citopatologia":"Ambiente e saúde","Meteorologia":"Ambiente e saúde","Manutenção de Máquinas Navais":"Controle e processos industriais","Seguros":"Gestão e negócios","Guarda e Segurança":"Militar","Defesa Civil":"Segurança","Processos Fonográficos":"Produção cultural e design","Lazer":"Turismo, hospitalidade e lazer","Viticultura e Enologia":"Produção alimentícia","Curtimento":"Produção industrial","Pós-Colheita":"Recursos naturais","Processamento da Madeira":"Produção industrial","Mecânica de Precisão":"Controle e processos industriais","Instrumentação Industrial":"Controle e processos industriais","Arquivo":"Desenvolvimento educacional e social","Transporte Metroferroviário":"Infraestrutura","Outros - Eixo Militar":"Militar","Museologia":"Produção cultural e design","Design de Moda":"Produção cultural e design","Estilismo e Coordenação de Moda":"Produção cultural e design","Terapias Holísticas":"Ambiente e saúde","Sistemas a Gás":"Controle e processos industriais","Trânsito":"Infraestrutura","Transporte de Cargas":"Infraestrutura","Joalheria":"Produção industrial","Aeroportuário":"Infraestrutura","Produção de materiais didáticos bilíngue em Libras/Língua Portuguesa":"Desenvolvimento educacional e social","Dependência química":"Ambiente e saúde","Produção de materiais didáticos bilíngues em Libras/Língua Portuguesa":"Desenvolvimento educacional e social","Equipamentos de Voo":"Militar"},"br_curso_top":[{"curso":"Administração","area":"Gestão e negócios","mat":395059,"mat2023":294386},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":298699,"mat2023":401596},{"curso":"Informática","area":"Informação e comunicação","mat":167134,"mat2023":136357},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":150864,"mat2023":77919},{"curso":"Segurança do Trabalho","area":"Segurança","mat":98137,"mat2023":97319},{"curso":"Logística","area":"Gestão e negócios","mat":88259,"mat2023":58688},{"curso":"Agropecuária","area":"Recursos naturais","mat":84122,"mat2023":76094},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":74532,"mat2023":74229},{"curso":"Transações Imobiliárias","area":"Gestão e negócios","mat":63804,"mat2023":89247},{"curso":"Mecânica","area":"Controle e processos industriais","mat":46809,"mat2023":46534},{"curso":"Edificações","area":"Infraestrutura","mat":42316,"mat2023":43491},{"curso":"Informática para Internet","area":"Informação e comunicação","mat":41925,"mat2023":36460},{"curso":"Eletromecânica","area":"Controle e processos industriais","mat":40224,"mat2023":38120},{"curso":"Química","area":"Produção industrial","mat":38081,"mat2023":36990},{"curso":"Radiologia","area":"Ambiente e saúde","mat":36800,"mat2023":46572},{"curso":"Agronegócio","area":"Recursos naturais","mat":35412,"mat2023":18539},{"curso":"Meio Ambiente","area":"Ambiente e saúde","mat":34378,"mat2023":31226},{"curso":"Marketing","area":"Gestão e negócios","mat":33012,"mat2023":18625},{"curso":"Ensino Médio - Curso Normal/Magistério","area":"Ensino Médio - Curso Normal/Magistério","mat":32529,"mat2023":41458},{"curso":"Recursos Humanos","area":"Gestão e negócios","mat":32297,"mat2023":36915}],"uf_curso_top":{"AC":[{"curso":"Administração","area":"Gestão e negócios","mat":2215},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":1429},{"curso":"Informática","area":"Informação e comunicação","mat":1223},{"curso":"Outros - Eixo Gestão e Negócios","area":"Gestão e negócios","mat":1017},{"curso":"Recursos Humanos","area":"Gestão e negócios","mat":953},{"curso":"Agropecuária","area":"Recursos naturais","mat":758},{"curso":"Análises clínicas","area":"Ambiente e saúde","mat":681},{"curso":"Redes de Computadores","area":"Informação e comunicação","mat":635},{"curso":"Logística","area":"Gestão e negócios","mat":526},{"curso":"Agronegócio","area":"Recursos naturais","mat":503}],"AL":[{"curso":"Administração","area":"Gestão e negócios","mat":3003},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":2829},{"curso":"Informática","area":"Informação e comunicação","mat":1712},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":1218},{"curso":"Agropecuária","area":"Recursos naturais","mat":1056},{"curso":"Guia de Turismo","area":"Turismo, hospitalidade e lazer","mat":946},{"curso":"Edificações","area":"Infraestrutura","mat":853},{"curso":"Radiologia","area":"Ambiente e saúde","mat":850},{"curso":"Segurança do Trabalho","area":"Segurança","mat":844},{"curso":"Agroindústria","area":"Produção alimentícia","mat":791}],"AP":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":1057},{"curso":"Administração","area":"Gestão e negócios","mat":730},{"curso":"Informática","area":"Informação e comunicação","mat":592},{"curso":"Edificações","area":"Infraestrutura","mat":344},{"curso":"Recursos Humanos","area":"Gestão e negócios","mat":263},{"curso":"Massoterapia","area":"Ambiente e saúde","mat":235},{"curso":"Eletroeletrônica","area":"Controle e processos industriais","mat":202},{"curso":"Logística","area":"Gestão e negócios","mat":198},{"curso":"Segurança do Trabalho","area":"Segurança","mat":197},{"curso":"Serviços Jurídicos","area":"Gestão e negócios","mat":191}],"AM":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":5889},{"curso":"Administração","area":"Gestão e negócios","mat":3313},{"curso":"Informática","area":"Informação e comunicação","mat":2656},{"curso":"Agropecuária","area":"Recursos naturais","mat":1529},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":1245},{"curso":"Serviços Jurídicos","area":"Gestão e negócios","mat":1058},{"curso":"Agente Comunitário de Saúde","area":"Ambiente e saúde","mat":830},{"curso":"Segurança do Trabalho","area":"Segurança","mat":806},{"curso":"Estética","area":"Ambiente e saúde","mat":662},{"curso":"Mecânica","area":"Controle e processos industriais","mat":568}],"BA":[{"curso":"Administração","area":"Gestão e negócios","mat":40882},{"curso":"Informática","area":"Informação e comunicação","mat":17160},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":12294},{"curso":"Logística","area":"Gestão e negócios","mat":11801},{"curso":"Agropecuária","area":"Recursos naturais","mat":11272},{"curso":"Segurança do Trabalho","area":"Segurança","mat":8318},{"curso":"Meio Ambiente","area":"Ambiente e saúde","mat":7276},{"curso":"Análises clínicas","area":"Ambiente e saúde","mat":6882},{"curso":"Nutrição e Dietética","area":"Ambiente e saúde","mat":5752},{"curso":"Agroecologia","area":"Recursos naturais","mat":5487}],"CE":[{"curso":"Administração","area":"Gestão e negócios","mat":22870},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":20968},{"curso":"Informática","area":"Informação e comunicação","mat":10326},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":5964},{"curso":"Redes de Computadores","area":"Informação e comunicação","mat":4546},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":3942},{"curso":"Edificações","area":"Infraestrutura","mat":3387},{"curso":"Radiologia","area":"Ambiente e saúde","mat":3104},{"curso":"Segurança do Trabalho","area":"Segurança","mat":2525},{"curso":"Secretaria Escolar","area":"Desenvolvimento educacional e social","mat":2282}],"DF":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":7341},{"curso":"Administração","area":"Gestão e negócios","mat":2972},{"curso":"Informática","area":"Informação e comunicação","mat":2537},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":2232},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":1638},{"curso":"Radiologia","area":"Ambiente e saúde","mat":1448},{"curso":"Secretariado","area":"Gestão e negócios","mat":1359},{"curso":"Segurança do Trabalho","area":"Segurança","mat":1046},{"curso":"Secretaria Escolar","area":"Desenvolvimento educacional e social","mat":1001},{"curso":"Agrimensura","area":"Infraestrutura","mat":995}],"ES":[{"curso":"Administração","area":"Gestão e negócios","mat":10165},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":4915},{"curso":"Mecânica","area":"Controle e processos industriais","mat":4471},{"curso":"Informática para Internet","area":"Informação e comunicação","mat":4255},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":3945},{"curso":"Segurança do Trabalho","area":"Segurança","mat":3773},{"curso":"Agropecuária","area":"Recursos naturais","mat":3676},{"curso":"Logística","area":"Gestão e negócios","mat":3545},{"curso":"Manutenção e Suporte em Informática","area":"Informação e comunicação","mat":1755},{"curso":"Redes de Computadores","area":"Informação e comunicação","mat":1478}],"GO":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":5831},{"curso":"Administração","area":"Gestão e negócios","mat":3874},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":3378},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":3257},{"curso":"Programação de Jogos Digitais","area":"Informação e comunicação","mat":2688},{"curso":"Informática","area":"Informação e comunicação","mat":2637},{"curso":"Química","area":"Produção industrial","mat":2266},{"curso":"Transações Imobiliárias","area":"Gestão e negócios","mat":2073},{"curso":"Outros - Eixo Informação e Comunicação","area":"Informação e comunicação","mat":1958},{"curso":"Automação Industrial","area":"Controle e processos industriais","mat":1887}],"MA":[{"curso":"Administração","area":"Gestão e negócios","mat":13313},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":7939},{"curso":"Informática para Internet","area":"Informação e comunicação","mat":6237},{"curso":"Informática","area":"Informação e comunicação","mat":5174},{"curso":"Logística","area":"Gestão e negócios","mat":3635},{"curso":"Eletromecânica","area":"Controle e processos industriais","mat":3463},{"curso":"Agropecuária","area":"Recursos naturais","mat":2911},{"curso":"Ensino Médio - Curso Normal/Magistério","area":"Ensino Médio - Curso Normal/Magistério","mat":2536},{"curso":"Redes de Computadores","area":"Informação e comunicação","mat":2523},{"curso":"Contabilidade","area":"Gestão e negócios","mat":2348}],"MT":[{"curso":"Administração","area":"Gestão e negócios","mat":3361},{"curso":"Agropecuária","area":"Recursos naturais","mat":3361},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":2395},{"curso":"Logística","area":"Gestão e negócios","mat":1757},{"curso":"Outros - Eixo Gestão e Negócios","area":"Gestão e negócios","mat":1568},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":1382},{"curso":"Segurança do Trabalho","area":"Segurança","mat":1331},{"curso":"Informática","area":"Informação e comunicação","mat":1319},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":1033},{"curso":"Automação Industrial","area":"Controle e processos industriais","mat":979}],"MS":[{"curso":"Administração","area":"Gestão e negócios","mat":2575},{"curso":"Zootecnia","area":"Recursos naturais","mat":2571},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":2266},{"curso":"Agropecuária","area":"Recursos naturais","mat":1645},{"curso":"Informática","area":"Informação e comunicação","mat":1592},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":1197},{"curso":"Ensino Médio - Curso Normal/Magistério","area":"Ensino Médio - Curso Normal/Magistério","mat":1029},{"curso":"Agricultura","area":"Recursos naturais","mat":807},{"curso":"Logística","area":"Gestão e negócios","mat":792},{"curso":"Segurança do Trabalho","area":"Segurança","mat":707}],"MG":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":36628},{"curso":"Informática","area":"Informação e comunicação","mat":36452},{"curso":"Administração","area":"Gestão e negócios","mat":18262},{"curso":"Segurança do Trabalho","area":"Segurança","mat":17078},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":13349},{"curso":"Logística","area":"Gestão e negócios","mat":13324},{"curso":"Agropecuária","area":"Recursos naturais","mat":9615},{"curso":"Agronegócio","area":"Recursos naturais","mat":8877},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":7094},{"curso":"Mecânica","area":"Controle e processos industriais","mat":5727}],"PA":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":9698},{"curso":"Informática","area":"Informação e comunicação","mat":6943},{"curso":"Segurança do Trabalho","area":"Segurança","mat":5244},{"curso":"Agropecuária","area":"Recursos naturais","mat":3180},{"curso":"Administração","area":"Gestão e negócios","mat":3115},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":2950},{"curso":"Meio Ambiente","area":"Ambiente e saúde","mat":2783},{"curso":"Eletromecânica","area":"Controle e processos industriais","mat":2265},{"curso":"Logística","area":"Gestão e negócios","mat":1529},{"curso":"Edificações","area":"Infraestrutura","mat":1368}],"PB":[{"curso":"Informática","area":"Informação e comunicação","mat":9895},{"curso":"Administração","area":"Gestão e negócios","mat":6814},{"curso":"Agropecuária","area":"Recursos naturais","mat":3149},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":2625},{"curso":"Edificações","area":"Infraestrutura","mat":2510},{"curso":"Agroecologia","area":"Recursos naturais","mat":1807},{"curso":"Análises clínicas","area":"Ambiente e saúde","mat":1797},{"curso":"Comércio","area":"Gestão e negócios","mat":1372},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":1340},{"curso":"Marketing","area":"Gestão e negócios","mat":1308}],"PR":[{"curso":"Administração","area":"Gestão e negócios","mat":39745},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":21460},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":14736},{"curso":"Outros - Eixo Desenvolvimento educacional e social","area":"Desenvolvimento educacional e social","mat":12583},{"curso":"Agronegócio","area":"Recursos naturais","mat":8865},{"curso":"Eletromecânica","area":"Controle e processos industriais","mat":7262},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":5570},{"curso":"Transações Imobiliárias","area":"Gestão e negócios","mat":5466},{"curso":"Agropecuária","area":"Recursos naturais","mat":4852},{"curso":"Segurança do Trabalho","area":"Segurança","mat":3144}],"PE":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":15834},{"curso":"Administração","area":"Gestão e negócios","mat":13138},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":8517},{"curso":"Redes de Computadores","area":"Informação e comunicação","mat":4298},{"curso":"Logística","area":"Gestão e negócios","mat":4285},{"curso":"Segurança do Trabalho","area":"Segurança","mat":4199},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":4175},{"curso":"Edificações","area":"Infraestrutura","mat":2307},{"curso":"Agropecuária","area":"Recursos naturais","mat":2280},{"curso":"Radiologia","area":"Ambiente e saúde","mat":2072}],"PI":[{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":24152},{"curso":"Administração","area":"Gestão e negócios","mat":21184},{"curso":"Marketing","area":"Gestão e negócios","mat":11581},{"curso":"Informática","area":"Informação e comunicação","mat":10257},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":6847},{"curso":"Agropecuária","area":"Recursos naturais","mat":5075},{"curso":"Agente Comunitário de Saúde","area":"Ambiente e saúde","mat":2724},{"curso":"Programação de Jogos Digitais","area":"Informação e comunicação","mat":1959},{"curso":"Informática para Internet","area":"Informação e comunicação","mat":1924},{"curso":"Farmácia","area":"Ambiente e saúde","mat":1884}],"RJ":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":40789},{"curso":"Ensino Médio - Curso Normal/Magistério","area":"Ensino Médio - Curso Normal/Magistério","mat":17563},{"curso":"Administração","area":"Gestão e negócios","mat":13052},{"curso":"Mecânica","area":"Controle e processos industriais","mat":8630},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":8135},{"curso":"Informática","area":"Informação e comunicação","mat":6678},{"curso":"Segurança do Trabalho","area":"Segurança","mat":5782},{"curso":"Radiologia","area":"Ambiente e saúde","mat":5069},{"curso":"Automação Industrial","area":"Controle e processos industriais","mat":4189},{"curso":"Logística","area":"Gestão e negócios","mat":3553}],"RN":[{"curso":"Informática","area":"Informação e comunicação","mat":8536},{"curso":"Administração","area":"Gestão e negócios","mat":7457},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":4956},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":4113},{"curso":"Segurança do Trabalho","area":"Segurança","mat":3720},{"curso":"Edificações","area":"Infraestrutura","mat":2357},{"curso":"Meio Ambiente","area":"Ambiente e saúde","mat":1886},{"curso":"Sistemas de Energia Renovável","area":"Controle e processos industriais","mat":1091},{"curso":"Transações Imobiliárias","area":"Gestão e negócios","mat":1020},{"curso":"Alimentos","area":"Produção alimentícia","mat":958}],"RS":[{"curso":"Administração","area":"Gestão e negócios","mat":20143},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":16631},{"curso":"Segurança do Trabalho","area":"Segurança","mat":11768},{"curso":"Agropecuária","area":"Recursos naturais","mat":9025},{"curso":"Ensino Médio - Curso Normal/Magistério","area":"Ensino Médio - Curso Normal/Magistério","mat":8311},{"curso":"Informática","area":"Informação e comunicação","mat":8147},{"curso":"Contabilidade","area":"Gestão e negócios","mat":6214},{"curso":"Transações Imobiliárias","area":"Gestão e negócios","mat":5712},{"curso":"Logística","area":"Gestão e negócios","mat":4975},{"curso":"Recursos Humanos","area":"Gestão e negócios","mat":4654}],"RO":[{"curso":"Agropecuária","area":"Recursos naturais","mat":1892},{"curso":"Informática","area":"Informação e comunicação","mat":1437},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":1374},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":787},{"curso":"Edificações","area":"Infraestrutura","mat":571},{"curso":"Administração","area":"Gestão e negócios","mat":527},{"curso":"Segurança do Trabalho","area":"Segurança","mat":510},{"curso":"Eletromecânica","area":"Controle e processos industriais","mat":421},{"curso":"Outros - Eixo Informação e Comunicação","area":"Informação e comunicação","mat":347},{"curso":"Outros - Eixo Ambiente e Saúde","area":"Ambiente e saúde","mat":319}],"RR":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":1187},{"curso":"Administração","area":"Gestão e negócios","mat":831},{"curso":"Agropecuária","area":"Recursos naturais","mat":560},{"curso":"Farmácia","area":"Ambiente e saúde","mat":385},{"curso":"Ensino Médio - Curso Normal/Magistério","area":"Ensino Médio - Curso Normal/Magistério","mat":353},{"curso":"Serviços Jurídicos","area":"Gestão e negócios","mat":248},{"curso":"Análises clínicas","area":"Ambiente e saúde","mat":237},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":235},{"curso":"Aquicultura","area":"Recursos naturais","mat":169},{"curso":"Saúde Bucal","area":"Ambiente e saúde","mat":163}],"SC":[{"curso":"Administração","area":"Gestão e negócios","mat":11529},{"curso":"Transações Imobiliárias","area":"Gestão e negócios","mat":10693},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":7711},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":4613},{"curso":"Informática","area":"Informação e comunicação","mat":4534},{"curso":"Agropecuária","area":"Recursos naturais","mat":4033},{"curso":"Eletromecânica","area":"Controle e processos industriais","mat":2845},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":2844},{"curso":"Segurança do Trabalho","area":"Segurança","mat":2788},{"curso":"Qualidade","area":"Gestão e negócios","mat":2533}],"SP":[{"curso":"Administração","area":"Gestão e negócios","mat":127326},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":60980},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":52048},{"curso":"Transações Imobiliárias","area":"Gestão e negócios","mat":30219},{"curso":"Logística","area":"Gestão e negócios","mat":27563},{"curso":"Informática","area":"Informação e comunicação","mat":19875},{"curso":"Vendas","area":"Gestão e negócios","mat":16768},{"curso":"Segurança do Trabalho","area":"Segurança","mat":14760},{"curso":"Química","area":"Produção industrial","mat":13462},{"curso":"Mecatrônica","area":"Controle e processos industriais","mat":11804}],"SE":[{"curso":"Enfermagem","area":"Ambiente e saúde","mat":2250},{"curso":"Administração","area":"Gestão e negócios","mat":1946},{"curso":"Segurança do Trabalho","area":"Segurança","mat":1931},{"curso":"Redes de Computadores","area":"Informação e comunicação","mat":1114},{"curso":"Informática","area":"Informação e comunicação","mat":1028},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":759},{"curso":"Automação Industrial","area":"Controle e processos industriais","mat":732},{"curso":"Edificações","area":"Infraestrutura","mat":666},{"curso":"Eletromecânica","area":"Controle e processos industriais","mat":649},{"curso":"Manutenção e Suporte em Informática","area":"Informação e comunicação","mat":635}],"TO":[{"curso":"Agropecuária","area":"Recursos naturais","mat":2166},{"curso":"Enfermagem","area":"Ambiente e saúde","mat":1300},{"curso":"Informática","area":"Informação e comunicação","mat":1097},{"curso":"Administração","area":"Gestão e negócios","mat":717},{"curso":"Segurança do Trabalho","area":"Segurança","mat":704},{"curso":"Eletrotécnica","area":"Controle e processos industriais","mat":509},{"curso":"Desenvolvimento de Sistemas","area":"Informação e comunicação","mat":417},{"curso":"Agronegócio","area":"Recursos naturais","mat":367},{"curso":"Informática para Internet","area":"Informação e comunicação","mat":359},{"curso":"Controle Ambiental","area":"Ambiente e saúde","mat":208}]},"br_rede_2025":{"Estadual":1289453,"Federal":330505,"Municipal":24092,"Privada":846095},"uf_rede_2025":{"AC":{"Estadual":13117,"Federal":1698,"Municipal":0,"Privada":1406},"AL":{"Estadual":8119,"Federal":10538,"Municipal":0,"Privada":7439},"AP":{"Estadual":2861,"Federal":2372,"Municipal":0,"Privada":1741},"AM":{"Estadual":12961,"Federal":9285,"Municipal":0,"Privada":7488},"BA":{"Estadual":125473,"Federal":22765,"Municipal":32,"Privada":38861},"CE":{"Estadual":73953,"Federal":11445,"Municipal":368,"Privada":35744},"DF":{"Estadual":10486,"Federal":5229,"Privada":18864},"ES":{"Estadual":27275,"Federal":12698,"Municipal":0,"Privada":21615},"GO":{"Estadual":26913,"Federal":8727,"Municipal":66,"Privada":18229},"MA":{"Estadual":50507,"Federal":14484,"Municipal":2382,"Privada":17610},"MT":{"Estadual":15806,"Federal":9074,"Municipal":55,"Privada":7016},"MS":{"Estadual":2886,"Federal":7609,"Municipal":0,"Privada":11618},"MG":{"Estadual":163679,"Federal":41730,"Municipal":1626,"Privada":61208},"PA":{"Estadual":28055,"Federal":11079,"Municipal":0,"Privada":20599},"PB":{"Estadual":35163,"Federal":11624,"Municipal":133,"Privada":7723},"PR":{"Estadual":110667,"Federal":10302,"Municipal":0,"Privada":53416},"PE":{"Estadual":39277,"Federal":14014,"Municipal":0,"Privada":34557},"PI":{"Estadual":85769,"Federal":13468,"Municipal":0,"Privada":7014},"RJ":{"Estadual":30961,"Federal":18402,"Municipal":1844,"Privada":103179},"RN":{"Estadual":17256,"Federal":17981,"Municipal":0,"Privada":17407},"RS":{"Estadual":35054,"Federal":25628,"Municipal":1550,"Privada":86339},"RO":{"Estadual":1184,"Federal":5249,"Municipal":0,"Privada":4887},"RR":{"Estadual":1283,"Federal":2170,"Municipal":0,"Privada":2238},"SC":{"Estadual":25310,"Federal":17521,"Municipal":33,"Privada":45001},"SP":{"Estadual":334887,"Federal":17516,"Municipal":16003,"Privada":206432},"SE":{"Estadual":6541,"Federal":4387,"Municipal":0,"Privada":5563},"TO":{"Estadual":4010,"Federal":3510,"Municipal":0,"Privada":2901}},"br_var":{"2007_2025":147.2},"uf_var":{"AC":{"2007":1146,"2025":16221,"var_2007_2025":1315.4,"var_2019_2025":160.0,"var_2024_2025":91.0},"AL":{"2007":12825,"2025":26096,"var_2007_2025":103.5,"var_2019_2025":-23.5,"var_2024_2025":5.9},"AP":{"2007":2065,"2025":6974,"var_2007_2025":237.7,"var_2019_2025":29.0,"var_2024_2025":24.4},"AM":{"2007":13259,"2025":29734,"var_2007_2025":124.3,"var_2019_2025":-11.2,"var_2024_2025":-32.6},"BA":{"2007":38444,"2025":187131,"var_2007_2025":386.8,"var_2019_2025":29.0,"var_2024_2025":5.0},"CE":{"2007":17978,"2025":121510,"var_2007_2025":575.9,"var_2019_2025":34.3,"var_2024_2025":5.9},"DF":{"2007":7038,"2025":34579,"var_2007_2025":391.3,"var_2019_2025":41.9,"var_2024_2025":14.3},"ES":{"2007":23312,"2025":61588,"var_2007_2025":164.2,"var_2019_2025":73.4,"var_2024_2025":1.5},"GO":{"2007":14536,"2025":53935,"var_2007_2025":271.0,"var_2019_2025":78.1,"var_2024_2025":43.2},"MA":{"2007":21866,"2025":84983,"var_2007_2025":288.7,"var_2019_2025":94.8,"var_2024_2025":14.0},"MT":{"2007":3970,"2025":31951,"var_2007_2025":704.8,"var_2019_2025":62.5,"var_2024_2025":51.7},"MS":{"2007":6439,"2025":22113,"var_2007_2025":243.4,"var_2019_2025":17.6,"var_2024_2025":2.9},"MG":{"2007":92383,"2025":268243,"var_2007_2025":190.4,"var_2019_2025":117.4,"var_2024_2025":3.5},"PA":{"2007":8323,"2025":59733,"var_2007_2025":617.7,"var_2019_2025":31.8,"var_2024_2025":-2.4},"PB":{"2007":19435,"2025":54643,"var_2007_2025":181.2,"var_2019_2025":67.9,"var_2024_2025":3.8},"PR":{"2007":83764,"2025":174385,"var_2007_2025":108.2,"var_2019_2025":34.3,"var_2024_2025":9.0},"PE":{"2007":66372,"2025":87848,"var_2007_2025":32.4,"var_2019_2025":-19.4,"var_2024_2025":-19.4},"PI":{"2007":15553,"2025":106251,"var_2007_2025":583.2,"var_2019_2025":134.0,"var_2024_2025":6.7},"RJ":{"2007":121253,"2025":154386,"var_2007_2025":27.3,"var_2019_2025":-22.9,"var_2024_2025":-6.3},"RN":{"2007":10717,"2025":52644,"var_2007_2025":391.2,"var_2019_2025":24.7,"var_2024_2025":-5.4},"RS":{"2007":99080,"2025":148571,"var_2007_2025":50.0,"var_2019_2025":22.0,"var_2024_2025":0.7},"RO":{"2007":2842,"2025":11320,"var_2007_2025":298.3,"var_2019_2025":-20.9,"var_2024_2025":-2.3},"RR":{"2007":1724,"2025":5691,"var_2007_2025":230.1,"var_2019_2025":1.8,"var_2024_2025":28.6},"SC":{"2007":41719,"2025":87865,"var_2007_2025":110.6,"var_2019_2025":33.6,"var_2024_2025":4.1},"SP":{"2007":261438,"2025":574838,"var_2007_2025":119.9,"var_2019_2025":34.6,"var_2024_2025":8.0},"SE":{"2007":15088,"2025":16491,"var_2007_2025":9.3,"var_2019_2025":40.1,"var_2024_2025":6.1},"TO":{"2007":4668,"2025":10421,"var_2007_2025":123.2,"var_2019_2025":-23.6,"var_2024_2025":-0.8}}}</script>
+<script>
+const D = JSON.parse(document.getElementById('ept-data').textContent);
+const NS = 'http://www.w3.org/2000/svg';
+const CSS = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const SER = ['--s1','--s2','--s3','--s4','--s5','--s6'];
+const SEQ = ['--seq-100','--seq-200','--seq-300','--seq-400','--seq-500','--seq-600','--seq-700'];
+
+const fmt  = n => new Intl.NumberFormat('pt-BR').format(Math.round(n));
+const fmt1 = n => new Intl.NumberFormat('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n);
+const pct  = n => fmt1(n) + '%';
+const sgn  = n => (n > 0 ? '+' : '') + fmt1(n) + '%';
+const kmil = n => n >= 1e6 ? fmt1(n/1e6)+' mi' : n >= 1000 ? fmt(n/1000)+' mil' : fmt(n);
+
+function fitH(host, fallback) {
+  if (!host.classList.contains('fit')) return fallback;
+  const h = host.clientHeight;
+  return h > 70 ? h : fallback;
+}
+function fitRows(host, n, bh0, gap0) {
+  if (!host.classList.contains('fit')) return [bh0, gap0];
+  const avail = host.clientHeight;
+  if (!(avail > 70) || !n) return [bh0, gap0];
+  const r = gap0 / bh0;
+  let bh = (avail - 10) / (n * (1 + r));
+  bh = Math.max(5, Math.min(bh0 * 1.9, bh));
+  return [Math.floor(bh), Math.max(3, Math.round(bh * r))];
+}
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function svg(host, w, h) {
+  host.innerHTML = '';
+  const s = el('svg', {viewBox:`0 0 ${w} ${h}`, 'font-family':'system-ui,-apple-system,"Segoe UI",sans-serif'}, host);
+  return s;
+}
+function txt(p, x, y, s, o = {}) {
+  const t = el('text', Object.assign({x, y, fill:CSS('--muted'), 'font-size':11}, o), p);
+  t.textContent = s; return t;
+}
+
+/* ── tooltip ───────────────────────────────────────────── */
+const TT = document.getElementById('tt');
+function tipOn(node, html) {
+  node.style.cursor = 'default';
+  const show = ev => {
+    TT.innerHTML = html;
+    TT.style.opacity = 1;
+    const r = TT.getBoundingClientRect();
+    let x = ev.clientX + 14, y = ev.clientY + 14;
+    if (x + r.width  > innerWidth  - 8) x = ev.clientX - r.width  - 14;
+    if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 14;
+    TT.style.left = x + 'px'; TT.style.top = y + 'px';
+  };
+  node.addEventListener('pointerenter', show);
+  node.addEventListener('pointermove', show);
+  node.addEventListener('pointerleave', () => TT.style.opacity = 0);
+}
+const row = (k, v) => `<div class="r"><span>${k}</span><b>${v}</b></div>`;
+
+/* ── legends & tables ──────────────────────────────────── */
+function legend(host, items) {
+  host.innerHTML = items.map(i => `<span><i style="background:${i.c}"></i>${i.l}</span>`).join('');
+}
+function table(host, head, rows) {
+  host.innerHTML = '<table><thead><tr>' + head.map(h => `<th>${h}</th>`).join('') +
+    '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map(c => `<td>${c}</td>`).join('') + '</tr>').join('') +
+    '</tbody></table>';
+}
+document.querySelectorAll('[data-table]').forEach(b => {
+  b.addEventListener('click', () => {
+    const t = document.getElementById(b.dataset.table);
+    const on = t.classList.toggle('on');
+    b.setAttribute('aria-pressed', on);
+    b.textContent = on ? 'Ocultar tabela' : 'Ver tabela';
+  });
+});
+
+/* ── horizontal ranked bars, one series ────────────────── */
+function barH(host, items, opt = {}) {
+  const lw = opt.labelW ?? 190, rw = opt.valueW ?? 96;
+  const [bh, gap] = fitRows(host, items.length, opt.bh ?? 22, opt.gap ?? 8);
+  const fs = Math.max(8, Math.min(12.5, (bh + gap) * 0.55));
+  const W = opt.W ?? Math.max(340, Math.round(host.clientWidth || 900)), H = items.length * (bh + gap) + 10;
+  const s = svg(host, W, H);
+  const plot = W - lw - rw;
+  const max = Math.max(...items.map(d => d.v), 1);
+  if (opt.ref !== undefined) {
+    const rx = lw + opt.ref / max * plot;
+    el('line', {x1:rx, x2:rx, y1:0, y2:H - 6, stroke:CSS('--muted'), 'stroke-width':1, 'stroke-dasharray':'3 4'}, s);
+  }
+  items.forEach((d, i) => {
+    const y = i * (bh + gap), w = Math.max(2, d.v / max * plot);
+    const g = el('g', {}, s);
+    const lab = txt(g, lw - 10, y + bh/2 + fs*0.35, d.l, {'text-anchor':'end', fill:CSS('--ink'), 'font-size':fs});
+    if (d.sub) lab.setAttribute('font-weight', 600);
+    el('rect', {x:lw, y, width:w, height:bh, rx:4, fill:d.c || CSS('--s1')}, g);
+    txt(g, lw + w + 9, y + bh/2 + fs*0.35, opt.vfmt ? opt.vfmt(d) : fmt(d.v),
+        {fill:CSS('--ink'), 'font-size':fs, 'font-weight':600, 'font-variant-numeric':'tabular-nums'});
+    if (d.tail) txt(g, lw + w + 9 + (opt.tailX ?? 62), y + bh/2 + fs*0.35, d.tail.t,
+        {fill:d.tail.c, 'font-size':fs - 0.5, 'font-weight':600, 'font-variant-numeric':'tabular-nums'});
+    if (d.tip) tipOn(g, d.tip);
+    el('rect', {x:0, y, width:W, height:bh, fill:'transparent'}, g);
+  });
+  return s;
+}
+
+/* ── diverging horizontal bars ─────────────────────────── */
+function barDiv(host, items, opt = {}) {
+  const lw = opt.labelW ?? 62;
+  const [bh, gap] = fitRows(host, items.length, opt.bh ?? 18, opt.gap ?? 6);
+  const fs = Math.max(8, Math.min(12, (bh + gap) * 0.55));
+  const W = opt.W ?? Math.max(340, Math.round(host.clientWidth || 900)), H = items.length * (bh + gap) + 24;
+  const s = svg(host, W, H);
+  const plot = W - lw - 88;
+  const pos = Math.max(0, ...items.map(d => d.v)), neg = Math.max(0, ...items.map(d => -d.v));
+  const span = (pos + neg) || 1;
+  const zero = lw + plot * (neg / span);
+  const scale = plot / span;
+  el('line', {x1:zero, x2:zero, y1:0, y2:H - 24, stroke:CSS('--axis'), 'stroke-width':1}, s);
+  if (opt.ref !== undefined) {
+    const rx = zero + opt.ref * scale;
+    el('line', {x1:rx, x2:rx, y1:0, y2:H - 24, stroke:CSS('--muted'), 'stroke-width':1, 'stroke-dasharray':'3 3'}, s);
+    txt(s, rx + 5, 11, opt.refLabel || '', {'text-anchor':'start', 'font-size':11});
+  }
+  items.forEach((d, i) => {
+    const y = i * (bh + gap);
+    const w = Math.abs(d.v) * scale, x = d.v >= 0 ? zero : zero - w;
+    const g = el('g', {}, s);
+    txt(g, lw - 8, y + bh/2 + fs*0.35, d.l, {'text-anchor':'end', fill:CSS('--ink'), 'font-size':fs, 'font-weight':600});
+    el('rect', {x, y, width:Math.max(2, w), height:bh, rx:4, fill:d.v >= 0 ? CSS('--pos') : CSS('--neg')}, g);
+    const tx = d.v >= 0 ? x + w + 8 : zero + 8;
+    txt(g, tx, y + bh/2 + fs*0.35, opt.vfmt ? opt.vfmt(d) : sgn(d.v),
+        {fill:CSS('--ink'), 'font-size':fs, 'font-weight':600, 'text-anchor':'start',
+         'font-variant-numeric':'tabular-nums'});
+    if (d.tip) tipOn(g, d.tip);
+    el('rect', {x:0, y, width:W, height:bh, fill:'transparent'}, g);
+  });
+  return s;
+}
+
+/* ── 100% stacked rows ─────────────────────────────────── */
+function stack100(host, rows, keys, colors, opt = {}) {
+  const lw = opt.labelW ?? 46, rw = opt.valueW ?? 76;
+  const [bh, gap] = fitRows(host, rows.length, opt.bh ?? 16, opt.gap ?? 5);
+  const fs = Math.max(7.5, Math.min(12, (bh + gap) * 0.6));
+  const W = opt.W ?? Math.max(340, Math.round(host.clientWidth || 900)), H = rows.length * (bh + gap) + 6;
+  const s = svg(host, W, H);
+  const plot = W - lw - rw;
+  rows.forEach((r, i) => {
+    const y = i * (bh + gap);
+    const tot = keys.reduce((a, k) => a + (r.v[k] || 0), 0) || 1;
+    txt(s, lw - 8, y + bh/2 + fs*0.35, r.l, {'text-anchor':'end', fill:CSS('--ink'), 'font-size':fs, 'font-weight':600});
+    let x = lw;
+    keys.forEach((k, j) => {
+      const w = (r.v[k] || 0) / tot * plot;
+      if (w <= 0) return;
+      const g = el('g', {}, s);
+      el('rect', {x, y, width:Math.max(0.5, w - 2), height:bh, rx:2, fill:colors[j]}, g);
+      tipOn(g, `<b>${r.full || r.l}</b><br>${row(k, fmt(r.v[k]) + ' · ' + pct(r.v[k]/tot*100))}`);
+      x += w;
+    });
+    txt(s, lw + plot + 9, y + bh/2 + fs*0.35, opt.rfmt ? opt.rfmt(r, tot) : kmil(tot),
+        {fill:CSS('--ink-2'), 'font-size':fs - 0.5, 'font-variant-numeric':'tabular-nums'});
+  });
+  return s;
+}
+
+/* ── line chart with crosshair ─────────────────────────── */
+function lineChart(host, series, opt = {}) {
+  const W = opt.W ?? Math.max(340, Math.round(host.clientWidth || 900));
+  const H = fitH(host, opt.h ?? 300), m = {t:14, r:opt.mr ?? 58, b:26, l:opt.ml ?? 52};
+  const s = svg(host, W, H);
+  const xs = opt.x, n = xs.length;
+  const allV = series.flatMap(se => se.v);
+  const lo = opt.lo ?? Math.min(...allV), hiRaw = Math.max(...allV);
+  const hi = opt.hi ?? hiRaw * 1.06;
+  const X = i => m.l + i * (W - m.l - m.r) / (n - 1);
+  const Y = v => H - m.b - (v - lo) / (hi - lo) * (H - m.t - m.b);
+  const ticks = opt.ticks ?? 4;
+  for (let i = 0; i <= ticks; i++) {
+    const v = lo + (hi - lo) * i / ticks, y = Y(v);
+    el('line', {x1:m.l, x2:W - m.r, y1:y, y2:y, stroke:CSS('--grid'), 'stroke-width':1}, s);
+    txt(s, m.l - 8, y + 4, opt.yfmt ? opt.yfmt(v) : fmt(v), {'text-anchor':'end'});
+  }
+  xs.forEach((x, i) => {
+    if (n > 12 && i % 2 && i !== n - 1) return;
+    txt(s, X(i), H - 8, String(x), {'text-anchor':'middle'});
+  });
+  series.forEach(se => {
+    const d = se.v.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    if (se.area) el('path', {d:d + ` L${X(n-1)},${Y(lo)} L${X(0)},${Y(lo)} Z`, fill:se.c, opacity:.10}, s);
+    el('path', {d, fill:'none', stroke:se.c, 'stroke-width':2, 'stroke-linejoin':'round', 'stroke-linecap':'round'}, s);
+    const li = n - 1;
+    el('circle', {cx:X(li), cy:Y(se.v[li]), r:4.5, fill:se.c, stroke:CSS('--surface'), 'stroke-width':2}, s);
+    txt(s, X(li) + 10, Y(se.v[li]) + 4, opt.lfmt ? opt.lfmt(se.v[li]) : kmil(se.v[li]),
+        {fill:CSS('--ink'), 'font-size':12, 'font-weight':650});
+  });
+  (opt.marks || []).forEach(mk => {
+    const x = X(xs.indexOf(mk.x));
+    el('line', {x1:x, x2:x, y1:m.t, y2:H - m.b, stroke:CSS('--axis'), 'stroke-width':1, 'stroke-dasharray':'3 4'}, s);
+    txt(s, x + 5, m.t + 11, mk.t, {'font-size':10.5, fill:CSS('--muted')});
+  });
+  const hov = el('g', {opacity:0}, s);
+  const vl = el('line', {y1:m.t, y2:H - m.b, stroke:CSS('--axis'), 'stroke-width':1}, hov);
+  const dots = series.map(se => el('circle', {r:4.5, fill:se.c, stroke:CSS('--surface'), 'stroke-width':2}, hov));
+  const cap = el('rect', {x:0, y:0, width:W, height:H, fill:'transparent'}, s);
+  cap.addEventListener('pointermove', ev => {
+    const r = s.getBoundingClientRect();
+    const px = (ev.clientX - r.left) / r.width * W;
+    let i = Math.round((px - m.l) / ((W - m.l - m.r) / (n - 1)));
+    i = Math.max(0, Math.min(n - 1, i));
+    hov.setAttribute('opacity', 1);
+    vl.setAttribute('x1', X(i)); vl.setAttribute('x2', X(i));
+    dots.forEach((dt, k) => { dt.setAttribute('cx', X(i)); dt.setAttribute('cy', Y(series[k].v[i])); });
+    TT.innerHTML = `<b>${xs[i]}</b>` + series.map(se =>
+      row(se.n, opt.tfmt ? opt.tfmt(se.v[i]) : fmt(se.v[i]))).join('');
+    TT.style.opacity = 1;
+    const tr = TT.getBoundingClientRect();
+    let tx = ev.clientX + 14, ty = ev.clientY + 14;
+    if (tx + tr.width > innerWidth - 8) tx = ev.clientX - tr.width - 14;
+    TT.style.left = tx + 'px'; TT.style.top = ty + 'px';
+  });
+  cap.addEventListener('pointerleave', () => { hov.setAttribute('opacity', 0); TT.style.opacity = 0; });
+  return s;
+}
+
+/* ═══════════════════════════════════════════════════════ */
+const Y25 = '2025', Y24 = '2024', Y23 = '2023';
+const UFS = Object.keys(D.uf_nome).sort();
+const br25 = D.br_serie[D.br_serie.length - 1];
+const totForma = D.formas.reduce((a, f) => a + D.br_forma[Y25][f], 0);
+const ufTot = u => D.formas.reduce((a, f) => a + D.uf_forma[Y25][u][f], 0);
+
+/* ── slide 1 KPIs ── */
+document.getElementById('kpi-a').textContent = '2,49 mi';
+document.getElementById('kpi-b').textContent = '+147%';
+document.getElementById('kpi-c').textContent = '33,8%';
+document.getElementById('kpi-d').textContent = '16,3%';
+
+/* ── slide 2 · panorama ── */
+function drawPanorama() {
+  const cols = SER.map(CSS);
+  barH(document.getElementById('c-panorama-forma'),
+    D.formas.map((f, i) => ({
+      l:f, v:D.br_forma[Y25][f], c:cols[i],
+      vfmt:null, tip:`<b>${f}</b>${row('Matrículas', fmt(D.br_forma[Y25][f]))}${row('Do total', pct(D.br_forma[Y25][f]/totForma*100))}`
+    })).map(d => ({...d, vfmt:undefined})),
+    {labelW:150, valueW:170, bh:22, gap:9,
+     vfmt:d => fmt(d.v) + '   ' + pct(d.v/totForma*100)});
+  legend(document.getElementById('l-panorama-forma'), D.formas.map((f, i) => ({l:f, c:cols[i]})));
+
+  const rede = D.br_rede_2025, rt = Object.values(rede).reduce((a, b) => a + b, 0);
+  const rk = ['Estadual','Privada','Federal','Municipal'];
+  barH(document.getElementById('c-panorama-rede'),
+    rk.map(k => ({l:k, v:rede[k] || 0, c:CSS('--s1'),
+      tip:`<b>${k}</b>${row('Matrículas', fmt(rede[k]||0))}${row('Do total', pct((rede[k]||0)/rt*100))}`})),
+    {labelW:120, valueW:170, bh:29, gap:15,
+     vfmt:d => fmt(d.v) + '   ' + pct(d.v/rt*100)});
+
+  const ar = D.areas.slice(0, 6).map(a => ({l:a, v:D.br_area[Y25][a], c:CSS('--s1'),
+    tip:`<b>${a}</b>${row('Matrículas', fmt(D.br_area[Y25][a]))}${row('Do total', pct(D.br_area[Y25][a]/totForma*100))}`}));
+  barH(document.getElementById('c-panorama-area'), ar,
+    {labelW:230, valueW:150, bh:22, gap:9, vfmt:d => fmt(d.v) + '   ' + pct(d.v/totForma*100)});
+
+  const top = UFS.map(u => ({u, v:ufTot(u)})).sort((a, b) => b.v - a.v).slice(0, 6);
+  barH(document.getElementById('c-panorama-uf'),
+    top.map(t => ({l:D.uf_nome[t.u], v:t.v, c:CSS('--s1'),
+      tip:`<b>${D.uf_nome[t.u]}</b>${row('Matrículas', fmt(t.v))}${row('Do total', pct(t.v/totForma*100))}`})),
+    {labelW:150, valueW:150, bh:22, gap:9, vfmt:d => fmt(d.v) + '   ' + pct(d.v/totForma*100)});
+}
+
+/* ── slide 3 · forma de oferta, 3 anos ── */
+function drawFormaBR() {
+  const cols = SER.map(CSS);
+  const host = document.getElementById('c-forma-br');
+  const anos = [Y23, Y24, Y25];
+  const W = Math.max(340, Math.round(host.clientWidth || 900)), H = fitH(host, 500), m = {t:10, r:24, b:34, l:190};
+  const s = svg(host, W, H);
+  const max = Math.max(...D.formas.flatMap(f => anos.map(a => D.br_forma[a][f])));
+  const gh = (H - m.t - m.b) / D.formas.length;
+  const bh = Math.max(9, Math.min(24, (gh - 14) / 3 - 4)), plot = W - m.l - m.r;
+  D.formas.forEach((f, i) => {
+    const y0 = m.t + i * gh;
+    txt(s, m.l - 10, y0 + gh/2, f, {'text-anchor':'end', fill:CSS('--ink'), 'font-size':12.5, 'font-weight':600});
+    anos.forEach((a, j) => {
+      const v = D.br_forma[a][f], w = v / max * plot, y = y0 + j * (bh + 4) + 8;
+      const g = el('g', {}, s);
+      el('rect', {x:m.l, y, width:Math.max(1, w), height:bh, rx:3,
+                  fill:cols[i], opacity:j === 2 ? 1 : (j === 1 ? .52 : .28)}, g);
+      if (j === 2) txt(g, m.l + w + 9, y + bh/2 + 4, fmt(v),
+        {fill:CSS('--ink'), 'font-size':11.5, 'font-weight':650, 'font-variant-numeric':'tabular-nums'});
+      tipOn(g, `<b>${f} · ${a}</b>${row('Matrículas', fmt(v))}`);
+      el('rect', {x:0, y, width:W, height:bh, fill:'transparent'}, g);
+    });
+  });
+  txt(s, m.l, H - 10, 'Tom claro 2023 · médio 2024 · sólido 2025', {'font-size':11});
+  legend(document.getElementById('l-forma-br'), D.formas.map((f, i) => ({l:f, c:cols[i]})));
+  table(document.getElementById('t-forma-br'),
+    ['Forma de oferta','2023','2024','2025','Δ 23→25'],
+    D.formas.map(f => {
+      const a = D.br_forma[Y23][f], c = D.br_forma[Y25][f];
+      return [f, fmt(a), fmt(D.br_forma[Y24][f]), fmt(c), a ? sgn((c/a - 1)*100) : '—'];
+    }));
+}
+
+/* ── slide 4 · razão + composição do EM ── */
+function drawRazao() {
+  lineChart(document.getElementById('c-razao'), [{
+    n:'EPT ÷ EM', c:CSS('--s1'), area:true, v:D.br_serie.map(r => r.razao)
+  }], {
+    x:D.anos, h:330, lo:0, hi:40, ticks:4,
+    yfmt:v => fmt1(v) + '%', lfmt:v => fmt1(v) + '%', tfmt:v => fmt1(v) + '%',
+    marks:[{x:2014, t:'Pronatec'}]
+  });
+  table(document.getElementById('t-razao'),
+    ['Ano','EPT','Ensino médio','Razão'],
+    D.br_serie.map(r => [r.ano, fmt(r.ept), fmt(r.em), pct(r.razao)]));
+
+  const keys = ['propedeutico','integrado','qualif_prof','normal_mag'];
+  const lbl = {propedeutico:'Propedêutico', integrado:'Técnico integrado',
+               qualif_prof:'Qualificação profissional (FIC)', normal_mag:'Normal/Magistério'};
+  const cols = [CSS('--neutral'), CSS('--s1'), CSS('--s2'), CSS('--s3')];
+  const host = document.getElementById('c-emcomp');
+  const rows = ['2023','2024','2025'].map(a => {
+    const o = D.em_composicao[a];
+    return {l:a, full:'Ensino médio ' + a, v:Object.fromEntries(keys.map(k => [lbl[k], o[k]]))};
+  });
+  const W = Math.max(340, Math.round(host.clientWidth || 900)), H = fitH(host, 300), s = svg(host, W, H);
+  const m = {t:16, r:16, b:20, l:58}, plot = W - m.l - m.r;
+  const gap = 20, bh = Math.max(28, (H - m.t - m.b - 2 * gap) / 3);
+  rows.forEach((r, i) => {
+    const y = m.t + i * (bh + gap);
+    const tot = Object.values(r.v).reduce((a, b) => a + b, 0);
+    txt(s, m.l - 10, y + bh/2 + 5, r.l, {'text-anchor':'end', fill:CSS('--ink'), 'font-size':14, 'font-weight':680});
+    let x = m.l;
+    Object.keys(r.v).forEach((k, j) => {
+      const v = r.v[k], w = v / tot * plot;
+      if (w <= 0) return;
+      const g = el('g', {}, s);
+      el('rect', {x, y, width:Math.max(.5, w - 2), height:bh, rx:3, fill:cols[j]}, g);
+      const p = v / tot * 100;
+      if (w > 52) {
+        const dark = j === 0;
+        txt(g, x + w/2 - 1, y + bh/2 + 5, fmt1(p) + '%',
+          {'text-anchor':'middle', fill:dark ? CSS('--ink') : '#fff', 'font-size':13, 'font-weight':680});
+      }
+      tipOn(g, `<b>${r.full}</b>${row(k, fmt(v))}${row('Do EM', pct(p))}${row('Total EM', fmt(tot))}`);
+      x += w;
+    });
+  });
+  legend(document.getElementById('l-emcomp'), Object.keys(rows[0].v).map((k, j) => ({l:k, c:cols[j]})));
+}
+
+/* ── slide 5 · áreas ── */
+let areaVar = false;
+function drawAreas() {
+  const t25 = D.areas.reduce((a, x) => a + D.br_area[Y25][x], 0);
+  const items = D.areas.map(a => {
+    const v = D.br_area[Y25][a], v0 = D.br_area[Y23][a];
+    const dv = v0 ? (v/v0 - 1) * 100 : null;
+    return {
+      l:a, v, c:CSS('--s1'),
+      tail:dv === null ? null : {t:sgn(dv), c:dv >= 0 ? CSS('--good') : CSS('--crit')},
+      tip:`<b>${a}</b>${row('2025', fmt(v))}${row('2023', fmt(v0))}${row('Δ', dv === null ? '—' : sgn(dv))}${row('Do total', pct(v/t25*100))}`
+    };
+  });
+  const draw = () => barH(document.getElementById('c-area-br'),
+    areaVar ? items : items.map(d => ({...d, tail:null})),
+    {labelW:260, valueW:areaVar ? 210 : 150, bh:29, gap:11, tailX:96,
+     vfmt:d => fmt(d.v) + '   ' + pct(d.v/t25*100)});
+  draw();
+  document.getElementById('btn-area-var').addEventListener('click', e => {
+    areaVar = !areaVar;
+    e.target.setAttribute('aria-pressed', areaVar);
+    e.target.textContent = areaVar ? 'Ocultar variação' : 'Mostrar variação 2023→2025';
+    draw();
+  });
+  table(document.getElementById('t-area'), ['Área','2023','2025','Δ','% do total 2025'],
+    D.areas.map(a => {
+      const v = D.br_area[Y25][a], v0 = D.br_area[Y23][a];
+      return [a, fmt(v0), fmt(v), v0 ? sgn((v/v0 - 1)*100) : '—', pct(v/t25*100)];
+    }));
+}
+
+/* ── slide 6 · cursos ── */
+function drawCursos() {
+  const t25 = D.areas.reduce((a, x) => a + D.br_area[Y25][x], 0);
+  const items = D.br_curso_top.map(c => {
+    const dv = c.mat2023 ? (c.mat/c.mat2023 - 1) * 100 : null;
+    return {
+      l:c.curso, v:c.mat, c:CSS('--s1'),
+      tail:dv === null ? null : {t:sgn(dv), c:dv >= 0 ? CSS('--good') : CSS('--crit')},
+      tip:`<b>${c.curso}</b>${row('Área', c.area)}${row('2025', fmt(c.mat))}${row('2023', fmt(c.mat2023))}${row('Δ', dv === null ? '—' : sgn(dv))}${row('Do total', pct(c.mat/t25*100))}`
+    };
+  });
+  barH(document.getElementById('c-curso-br'), items,
+    {labelW:250, valueW:196, bh:20, gap:8, tailX:86, vfmt:d => fmt(d.v)});
+  table(document.getElementById('t-curso'), ['Curso','Área','2023','2025','Δ'],
+    D.br_curso_top.map(c => [c.curso, c.area, fmt(c.mat2023), fmt(c.mat),
+      c.mat2023 ? sgn((c.mat/c.mat2023 - 1)*100) : '—']));
+}
+
+/* ── slide 7 · UF × forma ── */
+let sortForma = 'Integrado';
+function drawUFForma() {
+  const cols = SER.map(CSS);
+  legend(document.getElementById('l-uf-forma'), D.formas.map((f, i) => ({l:f, c:cols[i]})));
+  const render = () => {
+    let list = UFS.map(u => ({u, tot:ufTot(u), v:D.uf_forma[Y25][u]}));
+    list.sort((a, b) => sortForma === '_tot'
+      ? b.tot - a.tot
+      : (b.v[sortForma]/b.tot) - (a.v[sortForma]/a.tot));
+    stack100(document.getElementById('c-uf-forma'),
+      list.map(r => ({l:r.u, full:D.uf_nome[r.u], v:r.v})),
+      D.formas, cols, {labelW:52, valueW:86, bh:11, gap:4, rfmt:(r, t) => fmt(t)});
+  };
+  render();
+  document.querySelectorAll('[data-sort-forma]').forEach(b => b.addEventListener('click', () => {
+    sortForma = b.dataset.sortForma;
+    document.querySelectorAll('[data-sort-forma]').forEach(x =>
+      x.setAttribute('aria-pressed', x === b));
+    render();
+  }));
+  table(document.getElementById('t-uf-forma'),
+    ['UF','Total 2025', ...D.formas.map(f => f + ' %')],
+    UFS.map(u => {
+      const t = ufTot(u);
+      return [D.uf_nome[u], fmt(t), ...D.formas.map(f => pct(D.uf_forma[Y25][u][f]/t*100))];
+    }));
+}
+
+/* ── slide 8 · razão por UF + integrado/EM ── */
+function drawRazaoUF() {
+  const last = u => D.uf_serie[u][D.uf_serie[u].length - 1];
+  const items = UFS.map(u => ({u, r:last(u)})).sort((a, b) => b.r.razao - a.r.razao);
+  barH(document.getElementById('c-razao-uf'),
+    items.map(x => ({
+      l:x.u, v:x.r.razao, c:CSS('--s1'),
+      tip:`<b>${D.uf_nome[x.u]}</b>${row('EPT', fmt(x.r.ept))}${row('Ensino médio', fmt(x.r.em))}${row('Razão', pct(x.r.razao))}`
+    })), {ref:33.78, labelW:44, valueW:84, bh:15, gap:5, vfmt:d => pct(d.v)});
+  table(document.getElementById('t-razao-uf'), ['UF','EPT 2025','EM 2025','Razão','Integrado','% do EM'],
+    UFS.map(u => {
+      const r = last(u), ig = D.uf_forma[Y25][u]['Integrado'];
+      return [D.uf_nome[u], fmt(r.ept), fmt(r.em), pct(r.razao), fmt(ig), pct(ig/r.em*100)];
+    }));
+
+  const ig = UFS.map(u => {
+    const r = D.uf_serie[u][D.uf_serie[u].length - 1];
+    const v = D.uf_forma[Y25][u]['Integrado'];
+    return {u, p:v/r.em*100, v, em:r.em};
+  }).sort((a, b) => b.p - a.p);
+  barH(document.getElementById('c-integ-uf'),
+    ig.map(x => ({
+      l:x.u, v:x.p, c:CSS('--s1'),
+      tip:`<b>${D.uf_nome[x.u]}</b>${row('EM integrado', fmt(x.v))}${row('Ensino médio', fmt(x.em))}${row('Fatia', pct(x.p))}`
+    })), {ref:16.29, labelW:44, valueW:84, bh:15, gap:5, vfmt:d => pct(d.v)});
+}
+
+/* ── slide 9 · heatmap ── */
+function drawHeat() {
+  const host = document.getElementById('c-heat');
+  const areas = D.areas;
+  const ord = {N:0, NE:1, CO:2, SE:3, S:4};
+  const ufs = [...UFS].sort((a, b) => ord[D.uf_reg[a]] - ord[D.uf_reg[b]] || a.localeCompare(b));
+  const lw = 236, hh = 46, W = Math.max(340, Math.round(host.clientWidth || 900));
+  const cellW = (W - lw - 8) / ufs.length;
+  const H = fitH(host, 46 + areas.length * 34 + 8);
+  const cellH = (H - hh - 8) / areas.length;
+  const s = svg(host, W, H);
+  const bins = [0, 2, 5, 9, 14, 20, 28];
+  const colors = SEQ.map(CSS);
+  const colorFor = p => { let i = 0; for (let k = 0; k < bins.length; k++) if (p >= bins[k]) i = k; return colors[i]; };
+
+  /* faixas de região no topo */
+  const groups = [];
+  ufs.forEach((u, i) => {
+    const r = D.uf_reg[u];
+    if (!groups.length || groups[groups.length-1].r !== r) groups.push({r, a:i, b:i});
+    else groups[groups.length-1].b = i;
+  });
+  const rn = {N:'Norte', NE:'Nordeste', CO:'Centro-Oeste', SE:'Sudeste', S:'Sul'};
+  groups.forEach(g => {
+    const x0 = lw + g.a * cellW, x1 = lw + (g.b + 1) * cellW - 2;
+    txt(s, (x0 + x1)/2, 13, rn[g.r], {'text-anchor':'middle', 'font-size':11, fill:CSS('--muted'), 'font-weight':600});
+    el('line', {x1:x0, x2:x1, y1:19, y2:19, stroke:CSS('--grid'), 'stroke-width':1}, s);
+  });
+  ufs.forEach((u, j) => txt(s, lw + j*cellW + (cellW-2)/2, hh - 10, u,
+    {'text-anchor':'middle', fill:CSS('--ink'), 'font-size':11.5, 'font-weight':650}));
+
+  areas.forEach((a, i) => {
+    const y = hh + i * cellH;
+    txt(s, lw - 10, y + cellH/2 + 4, a.length > 34 ? a.slice(0, 33) + '…' : a,
+      {'text-anchor':'end', fill:CSS('--ink'), 'font-size':12, 'font-weight':560});
+    ufs.forEach((u, j) => {
+      const tot = ufTot(u), v = D.uf_area[Y25][u][a] || 0, pc = tot ? v/tot*100 : 0;
+      const g = el('g', {}, s);
+      el('rect', {x:lw + j*cellW, y, width:cellW - 2, height:cellH - 2, rx:3,
+                  fill:pc < 0.4 ? CSS('--surface-2') : colorFor(pc)}, g);
+      if (pc >= 9 && cellH > 15) txt(g, lw + j*cellW + (cellW-2)/2, y + cellH/2 + 3.6, Math.round(pc),
+        {'text-anchor':'middle', fill:'#fff', 'font-size':Math.min(11, cellH*0.34), 'font-weight':680});
+      tipOn(g, `<b>${D.uf_nome[u]} · ${a}</b>${row('Matrículas', fmt(v))}${row('Do estado', pct(pc))}`);
+    });
+  });
+  document.getElementById('scale-legend').innerHTML =
+    '0% ' + colors.map(c =>
+      `<i style="display:inline-block;width:15px;height:11px;background:${c};border-radius:2px;vertical-align:-1px"></i>`
+    ).join('') + ' 28%+';
+  table(document.getElementById('t-uf-area'), ['UF', ...areas],
+    UFS.map(u => {
+      const t = ufTot(u);
+      return [D.uf_nome[u], ...areas.map(a => pct((D.uf_area[Y25][u][a] || 0)/t*100))];
+    }));
+}
+
+/* ── slide 10 · série Brasil ── */
+let serieIdx = false;
+function drawSerie() {
+  const host = document.getElementById('c-serie-br');
+  const draw = () => {
+    if (!serieIdx) {
+      lineChart(host, [{n:'EPT', c:CSS('--s1'), area:true, v:D.br_serie.map(r => r.ept)}], {
+        x:D.anos, h:440, lo:0, hi:2500000, ticks:5, yfmt:v => kmil(v), lfmt:v => kmil(v), tfmt:v => fmt(v),
+        marks:[{x:2014, t:'pico Pronatec'}, {x:2021, t:'retomada'}]
+      });
+      legend(document.getElementById('l-serie-br'), [{l:'Matrículas de EPT', c:CSS('--s1')}]);
+    } else {
+      const e0 = D.br_serie[0].ept, m0 = D.br_serie[0].em;
+      lineChart(host, [
+        {n:'EPT (2007=100)', c:CSS('--s1'), v:D.br_serie.map(r => r.ept/e0*100)},
+        {n:'Ensino médio (2007=100)', c:CSS('--s2'), v:D.br_serie.map(r => r.em/m0*100)}
+      ], {x:D.anos, h:440, lo:60, hi:260, ticks:4, yfmt:v => fmt(v), lfmt:v => fmt(v), tfmt:v => fmt1(v),
+          marks:[{x:2014, t:'pico Pronatec'}]});
+      legend(document.getElementById('l-serie-br'),
+        [{l:'EPT (2007=100)', c:CSS('--s1')}, {l:'Ensino médio (2007=100)', c:CSS('--s2')}]);
+    }
+  };
+  draw();
+  document.getElementById('btn-serie-em').addEventListener('click', e => {
+    serieIdx = !serieIdx;
+    e.target.setAttribute('aria-pressed', serieIdx);
+    e.target.textContent = serieIdx ? 'Ver apenas EPT (absoluto)' : 'Comparar com o ensino médio (índice 2007=100)';
+    draw();
+  });
+  table(document.getElementById('t-serie'), ['Ano','EPT','Δ ano','Ensino médio','Razão'],
+    D.br_serie.map((r, i) => [r.ano, fmt(r.ept),
+      i ? sgn((r.ept/D.br_serie[i-1].ept - 1)*100) : '—', fmt(r.em), pct(r.razao)]));
+}
+
+/* ── slide 11 · variação por UF ── */
+function drawVar() {
+  const long = UFS.map(u => ({u, ...D.uf_var[u]})).sort((a, b) => b.var_2007_2025 - a.var_2007_2025);
+  barDiv(document.getElementById('c-var-longo'),
+    long.map(x => ({
+      l:x.u, v:x.var_2007_2025,
+      tip:`<b>${D.uf_nome[x.u]}</b>${row('2007', fmt(x['2007']))}${row('2025', fmt(x['2025']))}${row('Variação', sgn(x.var_2007_2025))}`
+    })), {ref:147.2, refLabel:'Brasil +147%', labelW:52, bh:15, gap:5});
+  const short = UFS.map(u => ({u, ...D.uf_var[u]})).sort((a, b) => b.var_2019_2025 - a.var_2019_2025);
+  barDiv(document.getElementById('c-var-curto'),
+    short.map(x => ({
+      l:x.u, v:x.var_2019_2025,
+      tip:`<b>${D.uf_nome[x.u]}</b>${row('2025', fmt(x['2025']))}${row('Variação 2019→2025', sgn(x.var_2019_2025))}${row('Variação 2024→2025', sgn(x.var_2024_2025))}`
+    })), {labelW:52, bh:15, gap:5});
+  table(document.getElementById('t-var'), ['UF','2007','2025','Δ 07→25','Δ 19→25','Δ 24→25'],
+    UFS.map(u => {
+      const x = D.uf_var[u];
+      return [D.uf_nome[u], fmt(x['2007']), fmt(x['2025']),
+        sgn(x.var_2007_2025), sgn(x.var_2019_2025), sgn(x.var_2024_2025)];
+    }));
+}
+
+/* ── slide 12 · explorador ── */
+function drawExplorer() {
+  const sel = document.getElementById('uf-pick');
+  sel.innerHTML = UFS.map(u => `<option value="${u}">${D.uf_nome[u]}</option>`).join('');
+  sel.value = 'TO';
+  const cols = SER.map(CSS);
+  const render = () => {
+    const u = sel.value, S = D.uf_serie[u], last = S[S.length - 1];
+    const tot = ufTot(u), v = D.uf_var[u], rede = D.uf_rede_2025[u];
+    const rt = Object.values(rede).reduce((a, b) => a + b, 0) || 1;
+    document.getElementById('uf-k1').textContent = fmt(tot);
+    document.getElementById('uf-k1n').textContent =
+      `${pct(tot/2490145*100)} do Brasil · ${UFS.map(x => ufTot(x)).sort((a,b)=>b-a).indexOf(tot)+1}º maior`;
+    const k2 = document.getElementById('uf-k2');
+    k2.textContent = sgn(v.var_2007_2025); k2.className = 'v ' + (v.var_2007_2025 >= 0 ? 'up' : 'down');
+    document.getElementById('uf-k2n').innerHTML =
+      `${fmt(v['2007'])} → ${fmt(v['2025'])} · 2019→2025 <span class="delta ${v.var_2019_2025>=0?'up':'down'}">${sgn(v.var_2019_2025)}</span>`;
+    document.getElementById('uf-k3').textContent = pct(last.razao);
+    document.getElementById('uf-k3n').textContent =
+      `Brasil 33,8% · EM integrado = ${pct(D.uf_forma[Y25][u]['Integrado']/last.em*100)} do EM`;
+    document.getElementById('uf-k4').textContent = pct((rede['Estadual']||0)/rt*100);
+    document.getElementById('uf-k4n').textContent =
+      `federal ${pct((rede['Federal']||0)/rt*100)} · privada ${pct((rede['Privada']||0)/rt*100)}`;
+
+    lineChart(document.getElementById('c-uf-serie'),
+      [{n:'EPT', c:CSS('--s1'), area:true, v:S.map(r => r.ept)}],
+      {x:D.anos, h:244, lo:0, ticks:3, ml:52, mr:58,
+       yfmt:kmil, lfmt:kmil, tfmt:fmt});
+
+    barH(document.getElementById('c-uf-forma-one'),
+      D.formas.filter(f => D.uf_forma[Y25][u][f] > 0).map((f, i) => ({
+        l:f, v:D.uf_forma[Y25][u][f], c:cols[D.formas.indexOf(f)],
+        tip:`<b>${f}</b>${row('Matrículas', fmt(D.uf_forma[Y25][u][f]))}${row('Do estado', pct(D.uf_forma[Y25][u][f]/tot*100))}`
+      })), {labelW:118, valueW:124, bh:26, gap:14,
+            vfmt:d => fmt(d.v) + '  ' + pct(d.v/tot*100)});
+
+    barH(document.getElementById('c-uf-curso'),
+      D.uf_curso_top[u].map(c => ({
+        l:c.curso, v:c.mat, c:CSS('--s1'),
+        tip:`<b>${c.curso}</b>${row('Área', c.area)}${row('Matrículas', fmt(c.mat))}${row('Do estado', pct(c.mat/tot*100))}`
+      })), {labelW:172, valueW:70, bh:17, gap:7, vfmt:d => fmt(d.v)});
+
+    const ars = D.areas.filter(a => (D.uf_area[Y25][u][a] || 0) > 0)
+      .sort((a, b) => D.uf_area[Y25][u][b] - D.uf_area[Y25][u][a]).slice(0, 8);
+    barH(document.getElementById('c-uf-area-one'),
+      ars.map(a => ({
+        l:a, v:D.uf_area[Y25][u][a], c:CSS('--s1'),
+        tip:`<b>${a}</b>${row('Matrículas', fmt(D.uf_area[Y25][u][a]))}${row('Do estado', pct(D.uf_area[Y25][u][a]/tot*100))}`
+      })), {labelW:250, valueW:170, bh:21, gap:9,
+            vfmt:d => fmt(d.v) + '   ' + pct(d.v/tot*100)});
+
+    barH(document.getElementById('c-uf-rede'),
+      ['Estadual','Privada','Federal','Municipal'].map(k => ({
+        l:k, v:rede[k] || 0, c:CSS('--s1'),
+        tip:`<b>${k}</b>${row('Matrículas', fmt(rede[k]||0))}${row('Do estado', pct((rede[k]||0)/rt*100))}`
+      })), {labelW:120, valueW:180, bh:26, gap:14,
+            vfmt:d => fmt(d.v) + '   ' + pct(d.v/rt*100)});
+
+    const igp = D.uf_forma[Y25][u]['Integrado'] / last.em * 100;
+    document.getElementById('uf-nota').textContent =
+      `${D.uf_nome[u]}: ${fmt(tot)} matrículas de EPT em 2025, ${pct(igp)} do ensino médio estadual em curso técnico integrado ` +
+      `(Brasil: 16,3%; Piauí, o teto: 57,0%). Variação 2024→2025: ${sgn(v.var_2024_2025)}.`;
+  };
+  sel.addEventListener('change', render);
+  render();
+}
+
+/* ── boot ──────────────────────────────────────────────── */
+function drawAll() {
+  drawPanorama(); drawFormaBR(); drawRazao(); drawAreas(); drawCursos();
+  drawUFForma(); drawRazaoUF(); drawHeat(); drawSerie(); drawVar(); drawExplorer();
+}
+drawAll();
+requestAnimationFrame(() => requestAnimationFrame(drawAll));
+
+/* nav */
+const deck = document.getElementById('deck');
+const slides = [...document.querySelectorAll('section.slide')];
+const titles = slides.map(s => (s.querySelector('h1, h2')?.textContent || '').replace(/\s+/g, ' ').trim());
+document.getElementById('tot').textContent = slides.length;
+let idx = 0;
+function goto(i) {
+  idx = Math.max(0, Math.min(slides.length - 1, i));
+  slides[idx].scrollIntoView({behavior:'smooth'});
+}
+deck.addEventListener('scroll', () => {
+  const i = Math.round(deck.scrollTop / innerHeight);
+  if (i !== idx) idx = i;
+  document.getElementById('cur').textContent = Math.min(idx + 1, slides.length);
+  document.getElementById('prog').style.width = ((idx) / (slides.length - 1) * 100) + '%';
+  document.getElementById('hudtitle').textContent = titles[Math.min(idx, titles.length - 1)];
+}, {passive:true});
+document.getElementById('next').onclick = () => goto(idx + 1);
+document.getElementById('prev').onclick = () => goto(idx - 1);
+addEventListener('keydown', e => {
+  if (['ArrowDown','PageDown',' '].includes(e.key) && e.target.tagName !== 'SELECT') { e.preventDefault(); goto(idx + 1); }
+  if (['ArrowUp','PageUp'].includes(e.key)) { e.preventDefault(); goto(idx - 1); }
+  if (e.key === 'Home') goto(0);
+  if (e.key === 'End') goto(slides.length - 1);
+});
+document.getElementById('theme').onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const isDark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  drawAll();
+};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (!document.documentElement.getAttribute('data-theme')) drawAll();
+});
+document.getElementById('hudtitle').textContent = titles[0];
+addEventListener('resize', () => { clearTimeout(window._rz); window._rz = setTimeout(drawAll, 200); });
+</script>
