@@ -1,5 +1,7 @@
 # EPT em números
 
+**Alexandre Schneider** · agosto de 2026
+
 Apresentação sobre a educação profissional técnica de nível médio no Brasil,
 a partir dos microdados do Censo Escolar da Educação Básica (INEP), 2007–2025.
 
@@ -21,3 +23,8 @@ relação com o ensino médio; e variação da série histórica — no Brasil e
 - Validação: os cinco componentes de 2024 somam 2.389.454 — o total dos microdados e da Sinopse Estatística 1.30
 
 As ressalvas metodológicas estão no slide 13 da própria apresentação.
+
+## Autoria
+
+Apuração, análise e visualização: Alexandre Schneider.
+Os dados são públicos (INEP); as escolhas de recorte e as conclusões são do autor.
