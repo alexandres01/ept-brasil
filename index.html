@@ -202,7 +202,7 @@ nav.hud button:hover{color:var(--ink); background:var(--surface-2)}
   <div class="grid g21 grow">
     <div class="card">
       <div class="chead">
-        <div><h3>Brasil, 2023 → 2025</h3><p class="small">Matrículas por forma de oferta</p></div>
+        <div><h3>Brasil, 2023 → 2025</h3><p class="small">Matrículas por forma de oferta. O integrado cruza o subsequente entre 2024 e 2025.</p></div>
         <div class="tools"><button class="btn" data-table="t-forma-br">Ver tabela</button></div>
       </div>
       <div class="chart fit" id="c-forma-br"></div>
@@ -771,7 +771,7 @@ function drawPanorama() {
       vfmt:null, tip:`<b>${f}</b>${row('Matrículas', fmt(D.br_forma[Y25][f]))}${row('Do total', pct(D.br_forma[Y25][f]/totForma*100))}`
     })).map(d => ({...d, vfmt:undefined})),
     {labelW:150, valueW:170, bh:22, gap:9,
-     vfmt:d => fmt(d.v) + '   ' + pct(d.v/totForma*100)});
+     vfmt:d => fmt(d.v) + '  (' + pct(d.v/totForma*100) + ')'});
   legend(document.getElementById('l-panorama-forma'), D.formas.map((f, i) => ({l:f, c:cols[i]})));
 
   const rede = D.br_rede_2025, rt = Object.values(rede).reduce((a, b) => a + b, 0);
@@ -780,18 +780,18 @@ function drawPanorama() {
     rk.map(k => ({l:k, v:rede[k] || 0, c:CSS('--s1'),
       tip:`<b>${k}</b>${row('Matrículas', fmt(rede[k]||0))}${row('Do total', pct((rede[k]||0)/rt*100))}`})),
     {labelW:120, valueW:170, bh:29, gap:15,
-     vfmt:d => fmt(d.v) + '   ' + pct(d.v/rt*100)});
+     vfmt:d => fmt(d.v) + '  (' + pct(d.v/rt*100) + ')'});
 
   const ar = D.areas.slice(0, 6).map(a => ({l:a, v:D.br_area[Y25][a], c:CSS('--s1'),
     tip:`<b>${a}</b>${row('Matrículas', fmt(D.br_area[Y25][a]))}${row('Do total', pct(D.br_area[Y25][a]/totForma*100))}`}));
   barH(document.getElementById('c-panorama-area'), ar,
-    {labelW:230, valueW:150, bh:22, gap:9, vfmt:d => fmt(d.v) + '   ' + pct(d.v/totForma*100)});
+    {labelW:230, valueW:150, bh:22, gap:9, vfmt:d => fmt(d.v) + '  (' + pct(d.v/totForma*100) + ')'});
 
   const top = UFS.map(u => ({u, v:ufTot(u)})).sort((a, b) => b.v - a.v).slice(0, 6);
   barH(document.getElementById('c-panorama-uf'),
     top.map(t => ({l:D.uf_nome[t.u], v:t.v, c:CSS('--s1'),
       tip:`<b>${D.uf_nome[t.u]}</b>${row('Matrículas', fmt(t.v))}${row('Do total', pct(t.v/totForma*100))}`})),
-    {labelW:150, valueW:150, bh:22, gap:9, vfmt:d => fmt(d.v) + '   ' + pct(d.v/totForma*100)});
+    {labelW:150, valueW:150, bh:22, gap:9, vfmt:d => fmt(d.v) + '  (' + pct(d.v/totForma*100) + ')'});
 }
 
 /* ── slide 3 · forma de oferta, 3 anos ── */
@@ -799,26 +799,84 @@ function drawFormaBR() {
   const cols = SER.map(CSS);
   const host = document.getElementById('c-forma-br');
   const anos = [Y23, Y24, Y25];
-  const W = Math.max(340, Math.round(host.clientWidth || 900)), H = fitH(host, 500), m = {t:10, r:24, b:34, l:190};
+  const W = Math.max(340, Math.round(host.clientWidth || 900)), H = fitH(host, 480);
+  const m = {t:18, r:196, b:40, l:62};
   const s = svg(host, W, H);
-  const max = Math.max(...D.formas.flatMap(f => anos.map(a => D.br_forma[a][f])));
-  const gh = (H - m.t - m.b) / D.formas.length;
-  const bh = Math.max(9, Math.min(24, (gh - 14) / 3 - 4)), plot = W - m.l - m.r;
+  const lo = 0, hi = 1250000, ticks = 5;
+  const X = j => m.l + j * (W - m.l - m.r) / (anos.length - 1);
+  const Y = v => H - m.b - (v - lo) / (hi - lo) * (H - m.t - m.b);
+
+  for (let k = 0; k <= ticks; k++) {
+    const v = lo + (hi - lo) * k / ticks, y = Y(v);
+    el('line', {x1:m.l, x2:W - m.r, y1:y, y2:y, stroke:CSS('--grid'), 'stroke-width':1}, s);
+    txt(s, m.l - 9, y + 4, fmt(v / 1000), {'text-anchor':'end'});
+  }
+  txt(s, m.l - 9, m.t - 6, 'mil', {'text-anchor':'end', 'font-size':10.5});
+  anos.forEach((a, j) => txt(s, X(j), H - 14, a,
+    {'text-anchor':'middle', fill:CSS('--ink'), 'font-size':13, 'font-weight':640}));
+
+  /* IFTP exclusivo só existe em 2025 — ponto isolado, nunca uma linha saindo do zero */
+  const fim = [];
   D.formas.forEach((f, i) => {
-    const y0 = m.t + i * gh;
-    txt(s, m.l - 10, y0 + gh/2, f, {'text-anchor':'end', fill:CSS('--ink'), 'font-size':12.5, 'font-weight':600});
-    anos.forEach((a, j) => {
-      const v = D.br_forma[a][f], w = v / max * plot, y = y0 + j * (bh + 4) + 8;
-      const g = el('g', {}, s);
-      el('rect', {x:m.l, y, width:Math.max(1, w), height:bh, rx:3,
-                  fill:cols[i], opacity:j === 2 ? 1 : (j === 1 ? .52 : .28)}, g);
-      if (j === 2) txt(g, m.l + w + 9, y + bh/2 + 4, fmt(v),
-        {fill:CSS('--ink'), 'font-size':11.5, 'font-weight':650, 'font-variant-numeric':'tabular-nums'});
-      tipOn(g, `<b>${f} · ${a}</b>${row('Matrículas', fmt(v))}`);
-      el('rect', {x:0, y, width:W, height:bh, fill:'transparent'}, g);
-    });
+    const vs = anos.map(a => D.br_forma[a][f]);
+    const pontos = vs.map((v, j) => ({j, v})).filter(p => p.v > 0);
+    if (pontos.length > 1) {
+      const d = pontos.map((p, k) => `${k ? 'L' : 'M'}${X(p.j).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ');
+      el('path', {d, fill:'none', stroke:cols[i], 'stroke-width':2.5,
+                  'stroke-linejoin':'round', 'stroke-linecap':'round'}, s);
+    }
+    pontos.forEach(p => el('circle', {cx:X(p.j), cy:Y(p.v), r:p.j === 2 ? 5 : 4,
+      fill:cols[i], stroke:CSS('--surface'), 'stroke-width':2}, s));
+    fim.push({f, i, y:Y(vs[2]), v:vs[2], solto:pontos.length === 1});
   });
-  txt(s, m.l, H - 10, 'Tom claro 2023 · médio 2024 · sólido 2025', {'font-size':11});
+
+  /* rótulos diretos à direita, empurrados para não colidirem */
+  fim.sort((a, b) => a.y - b.y);
+  const minGap = 17;
+  for (let k = 1; k < fim.length; k++)
+    if (fim[k].y - fim[k-1].y < minGap) fim[k].y = fim[k-1].y + minGap;
+  const excesso = fim[fim.length-1].y - (H - m.b);
+  if (excesso > 0) fim.forEach(t => t.y -= excesso);
+  fim.forEach(t => {
+    const g = el('g', {}, s);
+    txt(g, W - m.r + 12, t.y + 4, t.f, {fill:CSS('--ink'), 'font-size':12, 'font-weight':620});
+    txt(g, W - 8, t.y + 4, fmt(t.v) + (t.solto ? ' *' : ''),
+      {'text-anchor':'end', fill:CSS('--ink-2'), 'font-size':11.5, 'font-variant-numeric':'tabular-nums'});
+  });
+  txt(s, W - m.r + 12, H - 14, '* categoria criada em 2025', {'font-size':10.5});
+
+  /* leitura vertical por ano */
+  const hov = el('g', {opacity:0}, s);
+  const vl = el('line', {y1:m.t, y2:H - m.b, stroke:CSS('--axis'), 'stroke-width':1}, hov);
+  const dots = D.formas.map((f, i) => el('circle', {r:5, fill:cols[i],
+    stroke:CSS('--surface'), 'stroke-width':2}, hov));
+  const cap = el('rect', {x:0, y:0, width:W, height:H, fill:'transparent'}, s);
+  cap.addEventListener('pointermove', ev => {
+    const r = s.getBoundingClientRect();
+    const px = (ev.clientX - r.left) / r.width * W;
+    let j = Math.round((px - m.l) / ((W - m.l - m.r) / (anos.length - 1)));
+    j = Math.max(0, Math.min(anos.length - 1, j));
+    const tot = D.formas.reduce((acc, f) => acc + D.br_forma[anos[j]][f], 0);
+    hov.setAttribute('opacity', 1);
+    vl.setAttribute('x1', X(j)); vl.setAttribute('x2', X(j));
+    dots.forEach((dt, i) => {
+      const v = D.br_forma[anos[j]][D.formas[i]];
+      dt.setAttribute('opacity', v > 0 ? 1 : 0);
+      dt.setAttribute('cx', X(j)); dt.setAttribute('cy', Y(v));
+    });
+    TT.innerHTML = `<b>${anos[j]}</b>` + D.formas
+      .map((f, i) => ({f, v:D.br_forma[anos[j]][f]}))
+      .filter(o => o.v > 0).sort((a, b) => b.v - a.v)
+      .map(o => row(o.f, fmt(o.v) + ' (' + pct(o.v / tot * 100) + ')')).join('');
+    TT.style.opacity = 1;
+    const tr = TT.getBoundingClientRect();
+    let tx = ev.clientX + 14, ty = ev.clientY + 14;
+    if (tx + tr.width > innerWidth - 8) tx = ev.clientX - tr.width - 14;
+    if (ty + tr.height > innerHeight - 8) ty = ev.clientY - tr.height - 14;
+    TT.style.left = tx + 'px'; TT.style.top = ty + 'px';
+  });
+  cap.addEventListener('pointerleave', () => { hov.setAttribute('opacity', 0); TT.style.opacity = 0; });
+
   legend(document.getElementById('l-forma-br'), D.formas.map((f, i) => ({l:f, c:cols[i]})));
   table(document.getElementById('t-forma-br'),
     ['Forma de oferta','2023','2024','2025','Δ 23→25'],
@@ -892,7 +950,7 @@ function drawAreas() {
   const draw = () => barH(document.getElementById('c-area-br'),
     areaVar ? items : items.map(d => ({...d, tail:null})),
     {labelW:260, valueW:areaVar ? 210 : 150, bh:29, gap:11, tailX:96,
-     vfmt:d => fmt(d.v) + '   ' + pct(d.v/t25*100)});
+     vfmt:d => fmt(d.v) + '  (' + pct(d.v/t25*100) + ')'});
   draw();
   document.getElementById('btn-area-var').addEventListener('click', e => {
     areaVar = !areaVar;
@@ -1127,7 +1185,7 @@ function drawExplorer() {
         l:f, v:D.uf_forma[Y25][u][f], c:cols[D.formas.indexOf(f)],
         tip:`<b>${f}</b>${row('Matrículas', fmt(D.uf_forma[Y25][u][f]))}${row('Do estado', pct(D.uf_forma[Y25][u][f]/tot*100))}`
       })), {labelW:118, valueW:124, bh:26, gap:14,
-            vfmt:d => fmt(d.v) + '  ' + pct(d.v/tot*100)});
+            vfmt:d => fmt(d.v) + '  (' + pct(d.v/tot*100) + ')'});
 
     barH(document.getElementById('c-uf-curso'),
       D.uf_curso_top[u].map(c => ({
@@ -1142,14 +1200,14 @@ function drawExplorer() {
         l:a, v:D.uf_area[Y25][u][a], c:CSS('--s1'),
         tip:`<b>${a}</b>${row('Matrículas', fmt(D.uf_area[Y25][u][a]))}${row('Do estado', pct(D.uf_area[Y25][u][a]/tot*100))}`
       })), {labelW:250, valueW:170, bh:21, gap:9,
-            vfmt:d => fmt(d.v) + '   ' + pct(d.v/tot*100)});
+            vfmt:d => fmt(d.v) + '  (' + pct(d.v/tot*100) + ')'});
 
     barH(document.getElementById('c-uf-rede'),
       ['Estadual','Privada','Federal','Municipal'].map(k => ({
         l:k, v:rede[k] || 0, c:CSS('--s1'),
         tip:`<b>${k}</b>${row('Matrículas', fmt(rede[k]||0))}${row('Do estado', pct((rede[k]||0)/rt*100))}`
       })), {labelW:120, valueW:180, bh:26, gap:14,
-            vfmt:d => fmt(d.v) + '   ' + pct(d.v/rt*100)});
+            vfmt:d => fmt(d.v) + '  (' + pct(d.v/rt*100) + ')'});
 
     const igp = D.uf_forma[Y25][u]['Integrado'] / last.em * 100;
     document.getElementById('uf-nota').textContent =
